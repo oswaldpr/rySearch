@@ -27,6 +27,8 @@ define('RY_SEARCH_PARAM_DATE', 'date');
 define('RY_SEARCH_PARAM_DURATION', 'duration');
 define('RY_SEARCH_PARAM_DESTINATION', 'destination');
 define('RY_SEARCH_PARAM_PROF', 'professeur');
+define('RY_SEARCH_PARAM_MIN_PRICE', 'min_price');
+define('RY_SEARCH_PARAM_MAX_PRICE', 'max_price');
 define('RY_SEARCH_TXT_DOMAIN', 'ry-search-text-domain');
 
 class rySearchPlugin

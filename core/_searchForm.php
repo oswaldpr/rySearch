@@ -6,8 +6,9 @@ use rySearch\core\rySearchController;
 $keyword = rySearchController::urlGetParameter(RY_SEARCH_PARAM_KEY);
 $duration = rySearchController::urlGetParameter(RY_SEARCH_PARAM_DURATION);
 $isMonth = strlen($duration) > 4;
-$dateTxt = $isMonth ? '' : rySearchController::urlGetParameter(RY_SEARCH_PARAM_DATE);
 $durationTxt = rySearchController::getSelectedDuration($duration);
+$dateTxt = $isMonth ? '' : rySearchController::urlGetParameter(RY_SEARCH_PARAM_DATE);
+$beforeDayTxt = $durationTxt !== '' && $dateTxt !== '' ? ', ' : '';
 $isChecked = $duration && $duration !== 'all' ? '' : 'checked="checked"';
 $actionFormUrl = rySearchController::getActionFormUrl();
 $dayDurationHTML = rySearchController::getDayDurationHTML($duration);
@@ -34,7 +35,7 @@ $monthDurationHTML = rySearchController::getMonthDurationHTML($duration);
             <div id="RYSBD_DureeEtDate" class="dureeEtDateBox">
                 <div class="dureeEtDateTxt">Durée et date d'arrivée</div>
                 <span id="durationSelectedTxt" class="dureeEtDateElem"><?php echo $durationTxt; ?></span>
-                <span id="DateTxt" class="dureeEtDateElem"><?php echo $dateTxt; ?></span>
+                <span id="DateTxt" class="dureeEtDateElem"><?php echo $beforeDayTxt . $dateTxt; ?></span>
             </div>
 
             <div class="clear"></div>

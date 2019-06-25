@@ -130,6 +130,10 @@
             $parent.find('.rysbd_select_input').toggleClass("active", isClose);
         });
 
+        $(".rysbd_select.active li").on("click", function () {
+            $(this).find('a').click();
+        });
+
         $("#RYSBD_Btn").on("click", function () {
             $('#RYSBDForm').submit();
         });

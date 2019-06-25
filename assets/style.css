@@ -249,7 +249,7 @@
 
 .rysbd_select{
     background: #ffffff;
-    margin: 4px 0;
+    margin: 0;
     max-height: 240px;
     position: absolute;
     overflow-x: hidden;
@@ -288,6 +288,10 @@
 
 .et_pb_widget .rysbd_select li.ulSelected a{
     color:#00a2e0
+}
+
+.et_pb_widget .rysbd_select .spanSelected{
+    float: right;
 }
 
 .et_pb_widget .rysbd_select li{

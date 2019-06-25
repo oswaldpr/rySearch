@@ -7,6 +7,21 @@ use WP_Query;
 
 class rySearchController
 {
+    public static function getActionFormUrl()
+    {
+        $actionUrl = RY_SEARCH_ACTION_URL;
+        $isFirst = true;
+        foreach ($_GET as $name => $value){
+            if($value !== ''){
+                $char = $isFirst ? '?' : '&';
+                $actionUrl .= $char . $name .'='.$value;
+                $isFirst = false;
+            }
+        }
+
+        return $actionUrl;
+    }
+
     /**
      * @return WP_Query
      */
@@ -15,10 +30,14 @@ class rySearchController
         $keyword = self::urlGetParameter(RY_SEARCH_PARAM_KEY);
         $duration = self::urlGetParameter(RY_SEARCH_PARAM_DURATION);
         $prof = self::urlGetParameter(RY_SEARCH_PARAM_PROF);
-        $region = self::urlGetParameter(RY_SEARCH_PARAM_DESTINATION);
+        $minPrice = self::urlGetParameter(RY_SEARCH_PARAM_MIN_PRICE);
+        $maxPrice = self::urlGetParameter(RY_SEARCH_PARAM_MAX_PRICE);
+        $destination = self::urlGetParameter(RY_SEARCH_PARAM_DESTINATION);
         $additionalParams = array(
             'organisateur_name' => $prof,
-            'destination' => $region,
+            'min_price' => $minPrice,
+            'max_price' => $maxPrice,
+            'destination' => $destination,
         );
 
         if(strlen($duration) == 1){ // is day
@@ -85,9 +104,23 @@ class rySearchController
      * @param array $additionalParams
      * @return string
      */
-    public static function buildMetaQuery($startDate, $endDate, $additionalParams = array())
+    private static function buildMetaQuery($startDate, $endDate, $additionalParams = array())
     {
         $inMetaArr = ['organisateur_name'];
+        $inPriceArr = ['_price', '_regular_price', '_sale_price'];
+
+        $minPrice = $additionalParams['min_price'] !== '' ? $additionalParams['min_price'] : 1;
+        $maxPrice = $additionalParams['max_price'] !== '' ? $additionalParams['max_price'] : 10000000000;
+
+        $inPriceQuery = array('relation' => 'OR');
+        foreach ($inPriceArr as $metaKey){
+            $inPriceQuery[] = array(
+                'key' => $metaKey,
+                'type'    => 'numeric',
+                'value' => array( $minPrice, $maxPrice ),
+                'compare' => 'BETWEEN'
+            );
+        }
 
         $baseMetaQuery = array(
             'relation' => 'AND',
@@ -101,6 +134,7 @@ class rySearchController
                 'value' => $endDate,
                 'compare' => '<=',
             ),
+            $inPriceQuery,
         );
 
         $metaKeyArr = array();
@@ -123,7 +157,7 @@ class rySearchController
      * @param array $additionalParams
      * @return array
      */
-    public static function buildTaxonomyQuery($additionalParams = array())
+    private static function buildTaxonomyQuery($additionalParams = array())
     {
         $inTaxArr = ['destination'];
         $taxKeyArr = array();
@@ -161,21 +195,6 @@ class rySearchController
         return trim($string);
     }
 
-    public static function getActionFormUrl()
-    {
-        $actionUrl = RY_SEARCH_ACTION_URL;
-        $isFirst = true;
-        foreach ($_GET as $name => $value){
-            if($value !== ''){
-                $char = $isFirst ? '?' : '&';
-                $actionUrl .= $char . $name .'='.$value;
-                $isFirst = false;
-            }
-        }
-
-        return $actionUrl;
-    }
-
     public static function getRefererParameters()
     {
         $refererParameters = array();
@@ -193,9 +212,10 @@ class rySearchController
 
     public static function redirectUrl($refererParameters)
     {
-        //$refererParameters = self::getRefererParameters();
         foreach ($refererParameters as $key => $value) {
-            $_GET[$key] = $value;
+            if(!$_GET[$key]){
+                $_GET[$key] = $value;
+            }
         }
 
         return self::getActionFormUrl();
@@ -209,6 +229,9 @@ class rySearchController
         } else {
             $parameterValue = filter_var($_GET[$parameter], FILTER_SANITIZE_STRING);
         }
+
+        $parameterValue = $parameterValue === 'all' ? '' : $parameterValue;
+
         return $parameterValue;
     }
 
@@ -294,9 +317,7 @@ class rySearchController
         return $radioHTML;
     }
 
-
     // SEARCH BY DESTINATION
-
     public static function buildDestinationHtml()
     {
         $destinationList = self::getDestinationList();
@@ -316,9 +337,7 @@ class rySearchController
         return $destinationList;
     }
 
-
     // SEARCH BY PROFESSEUR
-
     public static function buildActiveProfHtml()
     {
         $activeProfList = self::getActiveProfList();
@@ -343,7 +362,6 @@ class rySearchController
     }
 
     // MAIN
-
     private static function buildULFilter($inputList, $inputName)
     {
         $url = RY_SEARCH_ACTION_URL;
@@ -359,6 +377,7 @@ class rySearchController
         $inputChar = $isFirst ? '?' : '&';
 
         $defaultUrl = $url. $inputChar . $inputName;
+        $clearUrl = $defaultUrl . '=all';
         $liListHTML = '';
         foreach ($inputList as $singleInput){
             $name = $singleInput->name;
@@ -366,19 +385,21 @@ class rySearchController
 
             if($inputName === RY_SEARCH_PARAM_DESTINATION){
                 $isSelected = $_GET[$inputName] === $slug;
-                $currentUrl = $defaultUrl . '=' . $slug;
+                $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . $slug;
             } else {
                 $isSelected = $_GET[$inputName] === $name;
-                $currentUrl = $defaultUrl . '=' . urlencode($name);
+                $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . urlencode($name);
             }
 
             $selectedClassHTML = '';
+            $selectedBeforeHTML = '';
             if($isSelected){
                 $destNameSelected = $name;
-                $selectedClassHTML = 'class = "ulSelected"';
+                $selectedClassHTML = 'class="ulSelected"';
+                $selectedBeforeHTML = '<span class="spanSelected"><a href="'.$clearUrl.'">x</a></span>';
             }
 
-            $liHTML = '<li '.$selectedClassHTML.'><a data-type="select" href="'.$currentUrl.'">' . $name . '</a></li>';
+            $liHTML = '<li '.$selectedClassHTML.'><a data-type="select" href="'.$currentUrl.'">' . $name . '</a>'.$selectedBeforeHTML.'</li>';
             $liListHTML .= $liHTML;
 
         }
@@ -415,7 +436,6 @@ class rySearchController
         $current = isset( $current ) ? $current : wc_get_loop_prop( 'current_page' );
         $base    = isset( $base ) ? $base : esc_url_raw( str_replace( 999999999, '%#%', remove_query_arg( 'add-to-cart', get_pagenum_link( 999999999, false ) ) ) );
         $format  = isset( $format ) ? $format : '';
-
 
         $pagHtml = '<nav class="woocommerce-pagination">';
         $pagHtml .= paginate_links( apply_filters( 'woocommerce_pagination_args', array( // WPCS: XSS ok.
