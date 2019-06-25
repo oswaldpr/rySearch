@@ -1,0 +1,319 @@
+/* Search form */
+
+#RYSBDMainForm{
+    display: table;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+#RYSBD_Btn:before {
+    font-family: "ETmodules" !important;
+    font-style: normal;
+    font-variant: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1;
+    text-transform: none;
+    speak: none;
+    font-weight: 700;
+    position: relative;
+    top: 30%;
+    content: "\55";
+}
+
+#RYSBD_Btn {
+    width: 5%;
+    text-align: center;
+}
+
+#RYSBD_Btn:hover {
+    background-color: #00a2e0;
+    border: 1px solid #00a2e0;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+}
+
+#RYSBD_Input {
+    width: 70%;
+}
+
+#RYSBD_Input input{
+    padding: 10px;
+    margin: 2px;
+    border: none;
+}
+
+#RYSBD_DatePicker .glyphicon {
+    position: relative;
+    top: 22%;
+    display: inline-block;
+    font-style: normal;
+    font-weight: 400;
+}
+
+#RYSBD_DatePickerValue {
+    display: none;
+}
+
+#calendarIcon.input-group-addon {
+    padding: 0px;
+    font-size: 2em;
+    font-weight: 400;
+    line-height: 1;
+    color: #555;
+    text-align: center;
+    background-color: inherit;
+    border: 0px;
+    border-radius: 0px;
+}
+
+#RYSBD_Date {
+    width: 25%;
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    padding-left: 10px;
+    overflow: hidden;
+}
+
+#RYSBD_DatePicker {
+}
+
+#RYSBD_DureeEtDate{
+    padding-left: 5px;
+}
+
+#RYSBD_clearDateTime{
+}
+
+.dureeEtDateBox, .RYSBD_search_row{
+    float: left;
+    height: 46px;
+}
+.dureeEtDateBox{
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+#RYSBD_Date_Box_Duration hr{
+    margin: 10px 0px;
+    border: 0;
+    border-top: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+#RYSBD_Date_Box_Duration .multiChoiceGroupInput.durationChoice{
+    display: none;
+}
+
+#RYSBD_Date_Box_Duration .durationSingleChoice .label-text{
+    font-weight: 400;
+}
+
+#RYSBD_Date_Box_Duration .durationSingleChoice.durationGroupSelected .label-text{
+    color: #00a2e0;
+}
+
+.RYSBD_Date_Box_title{
+    font-weight: 700;
+}
+
+#RYSBD_Date_Box{
+    float: right;
+    width: 40%;
+    height: 348px;
+    position: absolute;
+    right: 15px;
+    z-index: 9999;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+#RYSBD_Date_Box .datepicker.datepicker-dropdown.dropdown-menu:before, #RYSBD_Date_Box .datepicker.datepicker-dropdown.dropdown-menu:after{
+    content: none;
+}
+
+.hideBox{
+    display: none;
+}
+
+#RYSBD_Date_Box_Calendar .datepicker.dropdown-menu{
+    position: relative;
+    top: 0 !important;
+    left: 0 !important;
+    border: 0;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 5px  !important;
+    border-radius: 0;
+    -webkit-box-shadow: none  !important;
+    -moz-box-shadow: none  !important;
+    box-shadow: none  !important;
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding;
+    background-clip: padding-box;
+    border-right-width: inherit;
+    border-bottom-width: inherit;
+}
+
+#RYSBD_Date_Box_Calendar{
+    width: 60%;
+    float: left;
+    padding: 0 4%;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#RYSBD_Date_Box_Duration{
+    width: 40%;
+    padding: 0 4%;
+    float: right;
+    height: 100%;
+    max-height: 100%;
+    overflow-y: scroll;
+}
+
+.dureeEtDateElem{
+    font-size: inherit;
+    font-weight: 400;
+    color: inherit;
+    background-color: inherit;
+    float: left;
+    height: 23px;
+}
+
+.clear{
+    clear: both;
+}
+
+
+@media screen and (min-width: 770px) {
+    #RYSBDForm {
+        /*min-width: 900px;*/
+    }
+}
+
+
+/*ipad*/
+@media screen and (max-width: 769px) {
+    #RYSBD_Date {
+        width: 100%;
+        border-top: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    #RYSBD_Date_Box {
+        float: none;
+        width: 80%;
+    }
+}
+
+
+/*mobile*/
+@media screen and (max-width: 479px) {
+    #RYSBD_Btn {
+        width: 15%;
+    }
+
+    #RYSBD_Date_Box_Calendar .datepicker.dropdown-menu, #RYSBD_Date_Box {
+        width: 90%;
+        height: inherit;
+    }
+
+    #RYSBD_Date_Box_Calendar {
+        width: 100%;
+        float: none;
+        padding: 0 4%;
+    }
+    #RYSBD_Date_Box .daySection{
+        border-top: 2px solid rgba(0, 0, 0, 0.2);
+    }
+
+    #RYSBD_Date_Box_Duration {
+        width: 100%;
+        padding: 0 4%;
+        text-align: center;
+        float: none;
+        background-color: #fff;
+        max-height: 100%;
+        overflow-y: scroll;
+    }
+}
+
+/**/
+
+.widget_rysearchbyprof, .widget_rysearchbydestination, .widget_rysearchbydate {
+    margin-bottom: 20px !important;
+}
+
+.rysbd_select{
+    background: #ffffff;
+    margin: 4px 0;
+    max-height: 240px;
+    position: absolute;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 1;
+    border: 1px solid #cecece;
+    padding: 10px;
+}
+
+.et_pb_widget .rysbd_select_input{
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 2%;
+}
+
+.et_pb_widget .rysbd_select_input:after {
+    font-family: "ETmodules" !important;
+    font-style: normal;
+    font-variant: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1;
+    text-transform: none;
+    speak: none;
+    font-weight: 700;
+    position: relative;
+    top: 30%;
+    float: right;
+    content: "\33";
+}
+
+.et_pb_widget .rysbd_select_input.active:after {
+    content: "\32" !important;
+}
+
+.et_pb_widget .rysbd_select li{
+    padding: 5px 8px;
+    border-bottom: 1px solid transparent;
+    border-top: 1px solid transparent;
+}
+
+.et_pb_widget .rysbd_select li:hover{
+    color:#00a2e0;
+    -webkit-box-shadow: 0px 3px 0px #F2F2F2 inset, 0px -3px 0px #F2F2F2 inset;
+    -moz-box-shadow: 0px 3px 0px #f2f2f2 inset, 0px -3px 0px #f2f2f2 inset;
+    box-shadow: 0px 3px 0px #F2F2F2 inset, 0px -3px 0px #F2F2F2 inset;
+    border-bottom: 1px solid #cecece;
+    border-top: 1px solid #cecece;
+}
+
+.et_pb_widget .rysbd_select li a:hover{
+    color:#00a2e0;
+}
+
+@media screen and (min-width: 770px) {
+    .widget_rysearchbyprof, .widget_rysearchbydestination, .rysbd_select {
+        width: 25% !important;
+    }
+}
+
+
+/*DELETE*/
+#sidebar {
+    float: none;
+    width: 100% !important;
+}
