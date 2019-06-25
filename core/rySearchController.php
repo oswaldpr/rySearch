@@ -18,7 +18,7 @@ class rySearchController
         $region = self::urlGetParameter(RY_SEARCH_PARAM_DESTINATION);
         $additionalParams = array(
             'organisateur_name' => $prof,
-            'pa_region' => $region,
+            'destination' => $region,
         );
 
         if(strlen($duration) == 1){ // is day
@@ -72,6 +72,7 @@ class rySearchController
         );
 
         $queryArgs = array_merge($keySearchArr, $args);
+
         $query = new WP_Query( $queryArgs );
         $query->isRYSearch = true;
 
@@ -124,16 +125,21 @@ class rySearchController
      */
     public static function buildTaxonomyQuery($additionalParams = array())
     {
-        $inTaxArr = ['pa_region'];
-
+        $inTaxArr = ['destination'];
         $taxKeyArr = array();
+
         foreach ($additionalParams as $key => $value){
             if($value && in_array($key, $inTaxArr)){
-                $taxKeyArr[] = array(
-                    'taxonomy' => $key,
-                    'field'    => 'term_id',
-                    'terms'    => array( $value),
-                );
+                $destinationTermList = get_terms($args = array('taxonomy' => 'product_cat', 'slug' => $value));
+                $taxKeyArr = count($destinationTermList) > 1 ? array('relation' => 'OR') : array();
+
+                foreach ($destinationTermList as $destinationTerm) {
+                    $taxKeyArr[] = array(
+                        'taxonomy' => 'product_cat',
+                        'field'    => 'term_id',
+                        'terms'    => $destinationTerm->term_id,
+                    );
+                }
             }
         }
 
@@ -141,21 +147,10 @@ class rySearchController
     }
 
     /**
-     * @return string
-     */
-    public static function realKeyword()
-    {
-        $keyword = self::urlGetParameter(RY_SEARCH_PARAM_KEY);
-        $searchedKey = str_replace("\\", "", $keyword);
-
-        return $searchedKey;
-    }
-
-    /**
      * @param $string string
      * @return string
      */
-    public static function clearKeyword($string)
+    private static function clearKeyword($string)
     {
         $string = html_entity_decode($string, ENT_QUOTES);
         $string = preg_replace("/&#?[a-z0-9]+;/i","", $string); // Remove ascii characters
@@ -164,6 +159,46 @@ class rySearchController
         $string = preg_replace("/[^A-Za-z0-9\-\_\'\’\ ]/", "", $string); // Removes special chars
 
         return trim($string);
+    }
+
+    public static function getActionFormUrl()
+    {
+        $actionUrl = RY_SEARCH_ACTION_URL;
+        $isFirst = true;
+        foreach ($_GET as $name => $value){
+            if($value !== ''){
+                $char = $isFirst ? '?' : '&';
+                $actionUrl .= $char . $name .'='.$value;
+                $isFirst = false;
+            }
+        }
+
+        return $actionUrl;
+    }
+
+    public static function getRefererParameters()
+    {
+        $refererParameters = array();
+        $referer = $_SERVER['HTTP_REFERER'];
+
+        $parameterStr = explode('?', $referer)[1];
+        $parameterList = explode('&', $parameterStr);
+        foreach ($parameterList as $param) {
+            $singleParam = explode('=', $param);
+            $refererParameters[$singleParam[0]] = $singleParam[1];
+        }
+
+        return $refererParameters;
+    }
+
+    public static function redirectUrl($refererParameters)
+    {
+        //$refererParameters = self::getRefererParameters();
+        foreach ($refererParameters as $key => $value) {
+            $_GET[$key] = $value;
+        }
+
+        return self::getActionFormUrl();
     }
 
     public static function urlGetParameter($parameter)
@@ -175,18 +210,6 @@ class rySearchController
             $parameterValue = filter_var($_GET[$parameter], FILTER_SANITIZE_STRING);
         }
         return $parameterValue;
-    }
-
-    public static function unsetSearchSession()
-    {
-        if($_SESSION){
-            foreach ($_SESSION as $sessionName => $sessionItem) {
-                if(strpos($sessionName, 'rysbd') !== false){
-                    unset($_SESSION[$sessionName]);
-                    wp_reset_postdata();
-                }
-            }
-        }
     }
 
     public static function getSelectedDuration($duration)
@@ -222,7 +245,7 @@ class rySearchController
         return $monthDurationHTML;
     }
 
-    public static function getDayArr()
+    private static function getDayArr()
     {
         $dayDurationArray = array(
             "1"=>__('1 jour', RY_SEARCH_TXT_DOMAIN),
@@ -233,7 +256,7 @@ class rySearchController
         return $dayDurationArray;
     }
 
-    public static function getNextTwelveMonthsArr()
+    private static function getNextTwelveMonthsArr()
     {
         $months = array();
         for ($i = 1; $i <= 12; $i++) {
@@ -246,7 +269,7 @@ class rySearchController
         return $months;
     }
 
-    public static function buildRadio(array $inputArr, $name, $duration = '', $additionalClass = '')
+    private static function buildRadio(array $inputArr, $name, $duration = '', $additionalClass = '')
     {
         $radioHTML = '<div class="multiChoiceGroupSection">';
         foreach ($inputArr as $inputValue => $inputName) {
@@ -282,12 +305,12 @@ class rySearchController
         return $destinationSelect;
     }
 
-    public static function getDestinationList()
+    private static function getDestinationList()
     {
         global $wpdb;
 
         $tax_query = "SELECT term_id FROM `wp_term_taxonomy` WHERE taxonomy = 'pa_region'";
-        $name_query = "SELECT DISTINCT * FROM `wp_terms` WHERE term_id IN ($tax_query)";
+        $name_query = "SELECT DISTINCT * FROM `wp_terms` WHERE term_id IN ($tax_query) GROUP BY name ORDER BY name ASC";
         $destinationList = $wpdb->get_results( $name_query );
 
         return $destinationList;
@@ -304,7 +327,7 @@ class rySearchController
         return $activeProfSelect;
     }
 
-    public static function getActiveProfList()
+    private static function getActiveProfList()
     {
         global $wpdb;
 
@@ -313,29 +336,15 @@ class rySearchController
 
         $post_query = "SELECT post_id FROM `wp_postmeta` WHERE meta_key = 'sejour_date_from' AND meta_value >= '$today'";
         $name_query = "SELECT DISTINCT meta_value FROM `wp_postmeta` WHERE meta_key = 'organisateur_name' AND post_id IN ($post_query)";
-        $query = "SELECT * FROM `wp_terms` WHERE name IN ($name_query)";
+        $query = "SELECT * FROM `wp_terms` WHERE name IN ($name_query) GROUP BY name ORDER BY name ASC";
         $activeProfList = $wpdb->get_results( $query );
 
         return $activeProfList;
     }
 
     // MAIN
-    public static function buildSelectFilter($inputList, $inputName)
-    {
-        $selectHTML = '<select class="rysbd_select" name="'.$inputName.'">';
-        $selectHTML .= '<option value="" disabled selected>Filtre:</option>';
-        foreach ($inputList as $singleInput){
-            $name = $singleInput->name;
 
-            $optionHTML = '<option value="'.$name.'">' . $name . '</option>';
-            $selectHTML .= $optionHTML;
-        }
-        $selectHTML .= '</select>';
-
-        return $selectHTML;
-    }
-
-    public static function buildULFilter($inputList, $inputName)
+    private static function buildULFilter($inputList, $inputName)
     {
         $url = RY_SEARCH_ACTION_URL;
         $isFirst = true;
@@ -350,19 +359,80 @@ class rySearchController
         $inputChar = $isFirst ? '?' : '&';
 
         $defaultUrl = $url. $inputChar . $inputName;
-        //$ulHTML = '<input type="text" class="rysbd_select_input" name="'.$inputName.'" value="'.$_GET[$inputName].'">';
-        $selected = $_GET[$inputName] ? $_GET[$inputName] : 'Filtre:';
-        $ulHTML = '<div class="rysbd_select_input">'.$selected.'</div>';
-        $ulHTML .= '<ul class="rysbd_select hideBox">';
+        $liListHTML = '';
         foreach ($inputList as $singleInput){
             $name = $singleInput->name;
-            $currentUrl = $defaultUrl . '=' . urlencode($name);
-            $liHTML = '<li><a data-type="select" href="'.$currentUrl.'">' . $name . '</a></li>';
-            $ulHTML .= $liHTML;
+            $slug = $singleInput->slug;
+
+            if($inputName === RY_SEARCH_PARAM_DESTINATION){
+                $isSelected = $_GET[$inputName] === $slug;
+                $currentUrl = $defaultUrl . '=' . $slug;
+            } else {
+                $isSelected = $_GET[$inputName] === $name;
+                $currentUrl = $defaultUrl . '=' . urlencode($name);
+            }
+
+            $selectedClassHTML = '';
+            if($isSelected){
+                $destNameSelected = $name;
+                $selectedClassHTML = 'class = "ulSelected"';
+            }
+
+            $liHTML = '<li '.$selectedClassHTML.'><a data-type="select" href="'.$currentUrl.'">' . $name . '</a></li>';
+            $liListHTML .= $liHTML;
+
         }
+
+        $selected = isset($destNameSelected) ? $destNameSelected : 'Filtre :';
+        $ulHTML = '<div class="rysbd_select_input">'.$selected.'</div>';
+        $ulHTML .= '<ul class="rysbd_select hideBox">';
+        $ulHTML .= $liListHTML;
         $ulHTML .= '</ul>';
 
         return $ulHTML;
+    }
+
+
+    private static function buildSelectFilter($inputList, $inputName)
+    {
+        $selectHTML = '<select class="rysbd_select" name="'.$inputName.'">';
+        $selectHTML .= '<option value="" disabled selected>Filtre:</option>';
+        foreach ($inputList as $singleInput){
+            $name = $singleInput->name;
+
+            $optionHTML = '<option value="'.$name.'">' . $name . '</option>';
+            $selectHTML .= $optionHTML;
+        }
+        $selectHTML .= '</select>';
+
+        return $selectHTML;
+    }
+
+    public static function getPagination()
+    {
+        global $wp_query;
+        $total   = $wp_query->found_posts;
+        $current = isset( $current ) ? $current : wc_get_loop_prop( 'current_page' );
+        $base    = isset( $base ) ? $base : esc_url_raw( str_replace( 999999999, '%#%', remove_query_arg( 'add-to-cart', get_pagenum_link( 999999999, false ) ) ) );
+        $format  = isset( $format ) ? $format : '';
+
+
+        $pagHtml = '<nav class="woocommerce-pagination">';
+        $pagHtml .= paginate_links( apply_filters( 'woocommerce_pagination_args', array( // WPCS: XSS ok.
+            'base'         => $base,
+            'format'       => $format,
+            'add_args'     => false,
+            'current'      => max( 1, $current ),
+            'total'        => $total,
+            'prev_text'    => '&larr;',
+            'next_text'    => '&rarr;',
+            'type'         => 'list',
+            'end_size'     => 3,
+            'mid_size'     => 3,
+        ) ) );;
+        $pagHtml .= '</nav>';
+
+        return $pagHtml;
     }
 
 }

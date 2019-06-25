@@ -90,6 +90,21 @@ function rySearchRedirect()
 
     if (strpos($uri, RY_SEARCH_SLUG) !== false) {
 
+        $uriContainsAllParameters = true;
+        $refererParameters = rySearchController::getRefererParameters();
+        foreach ($refererParameters as $key => $value) {
+            if($value && strpos($uri, $key) === false){
+                $uriContainsAllParameters = false;
+                break;
+            }
+        }
+
+        if(!$uriContainsAllParameters){
+            $redirectUrl = rySearchController::redirectUrl($refererParameters);
+            header('Location:' . $redirectUrl);
+            die;
+        }
+
         $wp_query = rySearchController::getWPQuery();
         $wp_query->is_404 = false;
         $wp_query->is_category = false;

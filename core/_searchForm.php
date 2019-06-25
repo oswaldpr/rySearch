@@ -9,6 +9,7 @@ $isMonth = strlen($duration) > 4;
 $dateTxt = $isMonth ? '' : rySearchController::urlGetParameter(RY_SEARCH_PARAM_DATE);
 $durationTxt = rySearchController::getSelectedDuration($duration);
 $isChecked = $duration && $duration !== 'all' ? '' : 'checked="checked"';
+$actionFormUrl = rySearchController::getActionFormUrl();
 $dayDurationHTML = rySearchController::getDayDurationHTML($duration);
 $monthDurationHTML = rySearchController::getMonthDurationHTML($duration);
 ?>
@@ -16,17 +17,17 @@ $monthDurationHTML = rySearchController::getMonthDurationHTML($duration);
 <form id="RYSBDForm"
       name="RYSBDForm"
       accept-charset="utf-8"
-      action="<?php echo RY_SEARCH_ACTION_URL; ?>">
+      action="<?php echo $actionFormUrl; ?>">
 
     <div id="RYSBDMainForm">
         <div id="RYSBD_Btn" class="RYSBDBtn RYSBD_search_row"></div>
         <div id="RYSBD_Input" class="RYSBD_search_row">
-            <input type="text" class="inputfield" name="rysbd" value="<?php echo $keyword; ?>"
+            <input type="text" class="inputfield" name="<?php echo RY_SEARCH_PARAM_KEY; ?>" value="<?php echo $keyword; ?>"
                    placeholder="<?php _e('Essayez...', RY_SEARCH_TXT_DOMAIN); ?>">
         </div>
         <div id="RYSBD_Date" for="RYSBD_DatePicker" class="RYSBD_search_row">
             <div id="RYSBD_DatePicker" class="input-group date dureeEtDateElem" data-date-format="yyyy-mm-dd">
-                <input  id="RYSBD_DatePickerValue" class="form-control" name="date" type="text" value="<?php echo $dateTxt; ?>" readonly />
+                <input  id="RYSBD_DatePickerValue" class="form-control" name="<?php echo RY_SEARCH_PARAM_DATE; ?>" type="text" value="<?php echo $dateTxt; ?>" readonly />
                 <span id="calendarIcon"  class="input-group-addon dureeEtDateBox"><i class="glyphicon glyphicon-calendar"></i></span>
             </div>
 
@@ -55,7 +56,7 @@ $monthDurationHTML = rySearchController::getMonthDurationHTML($duration);
                 <?php echo $monthDurationHTML; ?>
             </div>
             <input type="radio" class="multiChoiceGroupInput" style="display: none"
-                   id="duration_all" name="duration" value="all" <?php echo $isChecked; ?>>
+                   id="duration_all" name="<?php echo RY_SEARCH_PARAM_DURATION; ?>" value="all" <?php echo $isChecked; ?>>
         </div>
         <div class="clear"></div>
     </div>

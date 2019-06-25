@@ -114,25 +114,30 @@
             }
         });
 
-        $("#RYSBD_Btn").on("click", function () {
-            $('#RYSBDForm').submit();
-        });
-
         $(".rysbd_select_input").on("click", function () {
+
             const $this = $(this);
             const $parent = $this.closest('.et_pb_widget');
             const $selectBox = $parent.find('.rysbd_select');
             const isClose = $selectBox.hasClass("hideBox");
+
+            $('.et_pb_widget .rysbd_select_input.active').removeClass('active');
+            $('.et_pb_widget .rysbd_select.active').removeClass('active');
+            $('.et_pb_widget .rysbd_select').addClass('hideBox');
+
             $selectBox.toggleClass("hideBox", !isClose);
             $selectBox.toggleClass("active", isClose);
             $parent.find('.rysbd_select_input').toggleClass("active", isClose);
+        });
+
+        $("#RYSBD_Btn").on("click", function () {
+            $('#RYSBDForm').submit();
         });
 
         $priceForm.on("submit", function (e) {
             e.preventDefault();
             $('#RYSBDForm').serialize();
             $priceForm.serialize();
-
 
             const $this = $(this);
             const $parent = $this.closest('.et_pb_widget');

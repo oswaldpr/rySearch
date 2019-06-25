@@ -286,6 +286,10 @@
     content: "\32" !important;
 }
 
+.et_pb_widget .rysbd_select li.ulSelected a{
+    color:#00a2e0
+}
+
 .et_pb_widget .rysbd_select li{
     padding: 5px 8px;
     border-bottom: 1px solid transparent;
