@@ -41,16 +41,12 @@
             $("#RYSBD_Date_Box_Calendar").html($('.datepicker.datepicker-dropdown'));
         });
 
-        $("#RYSBD_Date").on("click", function () {
-            $('#RYSBD_Date_Box').toggleClass("hideBox");
+        $("#RYSBD_Date").on("click", function (e) {
+            const isClearDate = $(e.target).is('.clearSearch');
+            if(!isClearDate){
+                $('#RYSBD_Date_Box').toggleClass("hideBox");
+            }
         });
-
-        // $("#RYSBD_clearDateTime").on("click", function () {
-        //     const $this = $(this);
-        //     if($this){
-        //         clearSearch(true)
-        //     }
-        // });
 
         $body.on("mousedown", ".durationGroupSelected", function(){
             const $this = $(this).find('input');

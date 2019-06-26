@@ -22,6 +22,7 @@ define('RY_SEARCH_NAME', 'RY Search');
 define('RY_SEARCH_SLUG', '/rysearch');
 define('RY_SEARCH_DIR', plugins_url() . '/'.$pluginName);
 define('RY_SEARCH_ACTION_URL', home_url() . RY_SEARCH_SLUG);
+define('RY_SEARCH_DEFAULT_SEARCH', home_url() . '/toutes-les-retraites');
 define('RY_SEARCH_PARAM_KEY', 'rys');
 define('RY_SEARCH_PARAM_DATE', 'date');
 define('RY_SEARCH_PARAM_DURATION', 'duration');

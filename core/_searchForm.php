@@ -38,6 +38,10 @@ $monthDurationHTML = rySearchController::getMonthDurationHTML($duration);
                 <span id="DateTxt" class="dureeEtDateElem"><?php echo $beforeDayTxt . $dateTxt; ?></span>
             </div>
 
+            <div id="RYSBD_clearSearch">
+                <a class="clearSearch" href="<?php echo RY_SEARCH_DEFAULT_SEARCH; ?>">x</a>
+            </div>
+
             <div class="clear"></div>
         </div>
     </div>

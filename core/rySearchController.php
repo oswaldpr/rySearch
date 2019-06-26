@@ -213,7 +213,7 @@ class rySearchController
     public static function redirectUrl($refererParameters)
     {
         foreach ($refererParameters as $key => $value) {
-            if(!$_GET[$key]){
+            if(!$_GET[$key] && $_GET[$key] !== ''){
                 $_GET[$key] = $value;
             }
         }
@@ -396,7 +396,7 @@ class rySearchController
             if($isSelected){
                 $destNameSelected = $name;
                 $selectedClassHTML = 'class="ulSelected"';
-                $selectedBeforeHTML = '<span class="spanSelected"><a href="'.$clearUrl.'">x</a></span>';
+                $selectedBeforeHTML = '<span class="spanSelected"><a href="'.$clearUrl.'">x</a></span><div class="clear"></div>';
             }
 
             $liHTML = '<li '.$selectedClassHTML.'><a data-type="select" href="'.$currentUrl.'">' . $name . '</a>'.$selectedBeforeHTML.'</li>';
