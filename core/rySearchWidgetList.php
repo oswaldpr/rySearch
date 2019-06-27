@@ -10,7 +10,7 @@ class widgetRySearchByDate extends WP_Widget {
     {
         parent::__construct(
             'rySearchByDate', 'RY recherche par texte et date',
-            array( 'description' => __( 'Widget de recherche par texte et date', RY_SEARCH_TXT_DOMAIN ), )
+            array( 'description' => __( 'Widget de recherche par texte et date'), )
         );
     }
 
@@ -30,7 +30,7 @@ class widgetRySearchByDate extends WP_Widget {
     public function form( $instance )
     {
         $title = isset( $instance[ 'title' ] ) ?
-            $instance[ 'title' ] : __( 'New title', RY_SEARCH_TXT_DOMAIN );
+            $instance[ 'title' ] : __( 'New title');
 
         $fieldId = $this->get_field_id( 'title' );
         $fieldName = $this->get_field_name( 'title' );
@@ -59,7 +59,7 @@ class widgetRySearchByDestination extends WP_Widget {
     {
         parent::__construct(
             'rySearchByDestination', 'RY recherche par destination',
-            array( 'description' => __( 'Widget de recherche par destination', RY_SEARCH_TXT_DOMAIN ), )
+            array( 'description' => __( 'Widget de recherche par destination' ), )
         );
     }
 
@@ -80,7 +80,7 @@ class widgetRySearchByDestination extends WP_Widget {
     public function form( $instance )
     {
         $title = isset( $instance[ 'title' ] ) ?
-            $instance[ 'title' ] : __( 'New title', RY_SEARCH_TXT_DOMAIN );
+            $instance[ 'title' ] : __( 'New title' );
 
         $fieldId = $this->get_field_id( 'title' );
         $fieldName = $this->get_field_name( 'title' );
@@ -109,7 +109,7 @@ class widgetRySearchByProf extends WP_Widget {
     {
         parent::__construct(
             'rySearchByProf', 'RY recherche par professeur',
-            array( 'description' => __( 'Widget de recherche par professeur', RY_SEARCH_TXT_DOMAIN ), )
+            array( 'description' => __( 'Widget de recherche par professeur' ), )
         );
     }
 
@@ -130,7 +130,7 @@ class widgetRySearchByProf extends WP_Widget {
     public function form( $instance )
     {
         $title = isset( $instance[ 'title' ] ) ?
-            $instance[ 'title' ] : __( 'New title', RY_SEARCH_TXT_DOMAIN );
+            $instance[ 'title' ] : __( 'New title' );
 
         $fieldId = $this->get_field_id( 'title' );
         $fieldName = $this->get_field_name( 'title' );

@@ -30,7 +30,7 @@ define('RY_SEARCH_PARAM_DESTINATION', 'destination');
 define('RY_SEARCH_PARAM_PROF', 'professeur');
 define('RY_SEARCH_PARAM_MIN_PRICE', 'min_price');
 define('RY_SEARCH_PARAM_MAX_PRICE', 'max_price');
-define('RY_SEARCH_TXT_DOMAIN', 'ry-search-text-domain');
+//define('RY_SEARCH_TXT_DOMAIN', 'ry-search-text-domain');
 
 class rySearchPlugin
 {
@@ -62,11 +62,11 @@ class rySearchPlugin
             }
         });
 
-        /* Load the language file */
-        $file = RY_SEARCH_DIR . '/languages/' . get_locale() . '.mo';
-        if (file_exists($file)) {
-            load_textdomain(RY_SEARCH_TXT_DOMAIN, $file);
-        }
+//        /* Load the language file */
+//        $file = RY_SEARCH_DIR . '/languages/' . get_locale() . '.mo';
+//        if (file_exists($file)) {
+//            load_textdomain(RY_SEARCH_TXT_DOMAIN, $file);
+//        }
 
         add_action( 'widgets_init', 'loadRYSearch' );
     }

@@ -357,6 +357,6 @@
 
 /*DELETE*/
 #sidebar {
-    float: none;
-    width: 100% !important;
+    /*float: none;*/
+    /*width: 100% !important;*/
 }

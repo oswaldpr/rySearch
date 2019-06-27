@@ -24,7 +24,7 @@ $monthDurationHTML = rySearchController::getMonthDurationHTML($duration);
         <div id="RYSBD_Btn" class="RYSBDBtn RYSBD_search_row"></div>
         <div id="RYSBD_Input" class="RYSBD_search_row">
             <input type="text" class="inputfield" name="<?php echo RY_SEARCH_PARAM_KEY; ?>" value="<?php echo $keyword; ?>"
-                   placeholder="<?php _e('Essayez...', RY_SEARCH_TXT_DOMAIN); ?>">
+                   placeholder='Essayez "Bali" ou "Vinyasa"'>
         </div>
         <div id="RYSBD_Date" for="RYSBD_DatePicker" class="RYSBD_search_row">
             <div id="RYSBD_DatePicker" class="input-group date dureeEtDateElem" data-date-format="yyyy-mm-dd">

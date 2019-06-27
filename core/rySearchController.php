@@ -271,9 +271,9 @@ class rySearchController
     private static function getDayArr()
     {
         $dayDurationArray = array(
-            "1"=>__('1 jour', RY_SEARCH_TXT_DOMAIN),
-            "3"=>__('3 jours', RY_SEARCH_TXT_DOMAIN),
-            "7"=>__('7 jours', RY_SEARCH_TXT_DOMAIN)
+            "1"=>__('1 jour'),
+            "3"=>__('3 jours'),
+            "7"=>__('7 jours')
         );
 
         return $dayDurationArray;
