@@ -43,6 +43,7 @@ class rySearchPlugin
         if (!function_exists("is_plugin_active"))
             include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
         $this->_initPlugin();
+        add_action( 'widgets_init', 'loadRYSearch' );
     }
 
     /**
@@ -55,9 +56,7 @@ class rySearchPlugin
 
             if(strpos($filename, 'widgetRySearch') !== false){
                 include_once ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidgetList.php';
-            }
-
-            if(file_exists($filename)) {
+            } elseif (file_exists($filename)){
                 include_once $filename;
             }
         });
@@ -67,8 +66,6 @@ class rySearchPlugin
 //        if (file_exists($file)) {
 //            load_textdomain(RY_SEARCH_TXT_DOMAIN, $file);
 //        }
-
-        add_action( 'widgets_init', 'loadRYSearch' );
     }
 }
 
@@ -76,6 +73,10 @@ add_action('plugins_loaded', 'createRYSearchPlugin');
 add_action('template_redirect', 'rySearchRedirect', 1);
 
 function createRYSearchPlugin() {
+    if ( ! defined( 'ABSPATH' ) ) {
+        exit;
+    }
+
     new rySearchPlugin();
 }
 

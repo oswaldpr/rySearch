@@ -384,10 +384,10 @@ class rySearchController
             $slug = $singleInput->slug;
 
             if($inputName === RY_SEARCH_PARAM_DESTINATION){
-                $isSelected = $_GET[$inputName] === $slug;
+                $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $slug;
                 $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . $slug;
             } else {
-                $isSelected = $_GET[$inputName] === $name;
+                $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $name;
                 $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . urlencode($name);
             }
 

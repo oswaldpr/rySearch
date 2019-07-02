@@ -1,4 +1,15 @@
 /* Search form */
+.widget_rysearchbydate {
+    width: 100% !important;
+}
+
+.widget_rysearchbyprof, .widget_rysearchbydestination, .widget_rysearchbydate {
+    margin-bottom: 20px !important;
+}
+
+.widget_rysearchbyprof, .widget_rysearchbydestination, .widget_rysearchbydate {
+    margin-bottom: 20px !important;
+}
 
 #RYSBDMainForm{
     display: table;
@@ -71,7 +82,7 @@
 #RYSBD_Date {
     width: 25%;
     border-left: 1px solid rgba(0, 0, 0, 0.2);
-    padding-left: 10px;
+    padding-left: 5px;
     overflow: hidden;
 }
 
@@ -82,9 +93,6 @@
     padding-left: 5px;
 }
 
-#RYSBD_clearDateTime{
-}
-
 .dureeEtDateBox, .RYSBD_search_row{
     float: left;
     height: 46px;
@@ -92,6 +100,7 @@
 .dureeEtDateBox{
     text-transform: uppercase;
     font-weight: 600;
+    font-size: 10px;
 }
 
 #RYSBD_Date_Box_Duration hr{
@@ -121,7 +130,6 @@
     width: 40%;
     height: 348px;
     position: absolute;
-    right: 15px;
     z-index: 9999;
     background-color: #fff;
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -188,6 +196,7 @@
     line-height: 16px;
     float: right;
     padding: 0 3%;
+    font-size: 10px;
 }
 
 #RYSBD_clearSearch:hover {
@@ -208,8 +217,23 @@
 
 
 @media screen and (min-width: 770px) {
-    #RYSBDForm {
-        /*min-width: 900px;*/
+    #RYSBD_Date_Box{
+        right: 22%;
+    }
+    .widget_rysearchbyprof, .widget_rysearchbydestination {
+        float: left;
+        width: 25% !important;
+        margin: 2% 1% !important;
+    }
+    .rysbd_select {
+        width: 25% !important;
+    }
+    .post-type-archive-product #shop-top-filters .et_pb_widget.woocommerce.widget_price_filter {
+        width: 65% !important;
+        margin: 1% !important;
+        float: right;
+        position: relative;
+        top: 60px;
     }
 }
 
@@ -228,6 +252,11 @@
 
     .rysbd_select.active {
         width: 95%;
+    }
+
+    .post-type-archive-product #shop-top-filters .widget_rysearchbydestination,
+    .post-type-archive-product #shop-top-filters .widget_rysearchbyprof {
+        width: 100% !important;
     }
 }
 
@@ -264,10 +293,6 @@
 }
 
 /**/
-
-.widget_rysearchbyprof, .widget_rysearchbydestination, .widget_rysearchbydate {
-    margin-bottom: 20px !important;
-}
 
 .rysbd_select{
     background: #ffffff;
@@ -347,13 +372,6 @@
     float: left;
     width: 10%;
 }
-
-@media screen and (min-width: 770px) {
-    .widget_rysearchbyprof, .widget_rysearchbydestination, .rysbd_select {
-        width: 25% !important;
-    }
-}
-
 
 /*DELETE*/
 #sidebar {
