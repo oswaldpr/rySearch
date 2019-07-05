@@ -267,9 +267,21 @@
         width: 15%;
     }
 
+    #RYSBD_Input {
+        width: 80%;
+    }
+
+    #RYSBD_Input input {
+        font-size: 13px;
+    }
+
     #RYSBD_Date_Box_Calendar .datepicker.dropdown-menu, #RYSBD_Date_Box {
-        width: 90%;
+        width: 100%;
         height: inherit;
+    }
+
+    #RYSBD_Date_Box_Calendar .datepicker.dropdown-menu .table-condensed {
+        margin: 0 auto;
     }
 
     #RYSBD_Date_Box_Calendar {
@@ -277,8 +289,14 @@
         float: none;
         padding: 0 4%;
     }
+
     #RYSBD_Date_Box .daySection{
         border-top: 2px solid rgba(0, 0, 0, 0.2);
+    }
+
+    #content-area #RYSBD_Date_Box table td {
+        max-width: 100px;
+        padding: 2%;
     }
 
     #RYSBD_Date_Box_Duration {

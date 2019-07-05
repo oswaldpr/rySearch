@@ -53,7 +53,7 @@ class rySearchPlugin
     function _initPlugin()
     {
         spl_autoload_register(function ($class) {
-            // Should be ABSPATH but the server config dont match the folders
+            // Should be ABSPATH  instead of RY_SEARCH_ABSPATH but the server config dont match the folders
             $filename = RY_SEARCH_ABSPATH . 'wp-content/plugins/'. str_replace('\\', DIRECTORY_SEPARATOR , $class) . '.php';
             $widgetFile = RY_SEARCH_ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidgetList.php';
             if(strpos($filename, 'widgetRySearch') !== false && file_exists($widgetFile)){
@@ -114,6 +114,9 @@ function rySearchRedirect()
         $wp_query->is_search = false;
         unset($wp_query->query['s']);
         unset($wp_query->query_vars['s']);
+
+        $wc = WooCommerce::instance();
+        $wc->query->product_query($wp_query);
 
         wc_get_template_part('archive', 'product');
 
