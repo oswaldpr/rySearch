@@ -30,6 +30,7 @@ define('RY_SEARCH_PARAM_DESTINATION', 'destination');
 define('RY_SEARCH_PARAM_PROF', 'professeur');
 define('RY_SEARCH_PARAM_MIN_PRICE', 'min_price');
 define('RY_SEARCH_PARAM_MAX_PRICE', 'max_price');
+define('RY_SEARCH_ABSPATH', '/www/');
 //define('RY_SEARCH_TXT_DOMAIN', 'ry-search-text-domain');
 
 class rySearchPlugin
@@ -52,10 +53,11 @@ class rySearchPlugin
     function _initPlugin()
     {
         spl_autoload_register(function ($class) {
-            $filename = ABSPATH . 'wp-content/plugins/'. str_replace('\\', DIRECTORY_SEPARATOR , $class) . '.php';
-
-            if(strpos($filename, 'widgetRySearch') !== false){
-                include_once ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidgetList.php';
+            // Should be ABSPATH but the server config dont match the folders
+            $filename = RY_SEARCH_ABSPATH . 'wp-content/plugins/'. str_replace('\\', DIRECTORY_SEPARATOR , $class) . '.php';
+            $widgetFile = RY_SEARCH_ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidgetList.php';
+            if(strpos($filename, 'widgetRySearch') !== false && file_exists($widgetFile)){
+                include_once $widgetFile;
             } elseif (file_exists($filename)){
                 include_once $filename;
             }
@@ -73,10 +75,6 @@ add_action('plugins_loaded', 'createRYSearchPlugin');
 add_action('template_redirect', 'rySearchRedirect', 1);
 
 function createRYSearchPlugin() {
-    if ( ! defined( 'ABSPATH' ) ) {
-        exit;
-    }
-
     new rySearchPlugin();
 }
 
@@ -84,6 +82,7 @@ function loadRYSearch() {
     register_widget('rySearch\core\widgetRySearchByDate');
     register_widget('rySearch\core\widgetRySearchByDestination');
     register_widget('rySearch\core\widgetRySearchByProf');
+    wc_register_widgets();
 }
 
 function rySearchRedirect()

@@ -127,7 +127,7 @@
 
 #RYSBD_Date_Box{
     float: right;
-    width: 40%;
+    width: 45%;
     height: 348px;
     position: absolute;
     z-index: 9999;
@@ -334,10 +334,9 @@
 }
 
 .et_pb_widget .rysbd_select li{
-    //padding: 5px 8px;
     padding: 0px;
     margin: 5px 8px;
-    height: 25px;
+    /*height: 25px;*/
     border-bottom: 1px solid transparent;
     border-top: 1px solid transparent;
 }

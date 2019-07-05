@@ -286,10 +286,57 @@ class rySearchController
             $monthValue = date("Y-m", strtotime( date( 'Y-m' )." +$i months"));
             $date = new DateTime($monthValue . '-01');
             $monthName = $date->format('Y F');
-            $months[$monthValue] = $monthName;
+            $month = explode(' ', $monthName);
+            $monthFR = self::trMonthName($month[1]);
+            $months[$monthValue] = $month[0] . ' ' . $monthFR;
         }
 
         return $months;
+    }
+
+    private static function trMonthName($monthName)
+    {
+        $name = '';
+        switch ( strtolower( $monthName ) ) {
+            case 'january':
+                $name = 'Janvier';
+                break;
+            case 'february':
+                $name = 'Février';
+                break;
+            case 'march':
+                $name = 'Mars';
+                break;
+            case 'april':
+                $name = 'Avril';
+                break;
+            case 'may':
+                $name = 'Mai';
+                break;
+            case 'june':
+                $name = 'Juin';
+                break;
+            case 'july':
+                $name = 'Juillet';
+                break;
+            case 'august':
+                $name = 'Août';
+                break;
+            case 'september':
+                $name = 'Septembre';
+                break;
+            case 'october':
+                $name = 'Octobre';
+                break;
+            case 'november':
+                $name = 'Novembre';
+                break;
+            case 'december':
+                $name = 'Décembre';
+                break;
+        }
+
+        return $name;
     }
 
     private static function buildRadio(array $inputArr, $name, $duration = '', $additionalClass = '')
@@ -431,26 +478,40 @@ class rySearchController
 
     public static function getPagination()
     {
-        global $wp_query;
-        $total   = $wp_query->found_posts;
-        $current = isset( $current ) ? $current : wc_get_loop_prop( 'current_page' );
-        $base    = isset( $base ) ? $base : esc_url_raw( str_replace( 999999999, '%#%', remove_query_arg( 'add-to-cart', get_pagenum_link( 999999999, false ) ) ) );
-        $format  = isset( $format ) ? $format : '';
+        $pagHtml = '';
+        $uri = $_SERVER['REQUEST_URI'];
+        if (strpos($uri, RY_SEARCH_SLUG) !== false) {
 
-        $pagHtml = '<nav class="woocommerce-pagination">';
-        $pagHtml .= paginate_links( apply_filters( 'woocommerce_pagination_args', array( // WPCS: XSS ok.
-            'base'         => $base,
-            'format'       => $format,
-            'add_args'     => false,
-            'current'      => max( 1, $current ),
-            'total'        => $total,
-            'prev_text'    => '&larr;',
-            'next_text'    => '&rarr;',
-            'type'         => 'list',
-            'end_size'     => 3,
-            'mid_size'     => 3,
-        ) ) );;
-        $pagHtml .= '</nav>';
+            $urlParts = explode('/', $uri);
+            foreach ($urlParts as $key => $value){
+                if($value === 'page'){
+                    $pageKey = $key + 1;
+                    $current = $urlParts[$pageKey];
+                    break;
+                }
+            }
+
+            global $wp_query;
+            $total   = $wp_query->found_posts;
+            $current = isset( $current ) ? $current : 1;
+            $base    = isset( $base ) ? $base : esc_url_raw( str_replace( 999999999, '%#%', remove_query_arg( 'add-to-cart', get_pagenum_link( 999999999, false ) ) ) );
+            $format  = isset( $format ) ? $format : '';
+
+            $pagHtml = '<nav class="woocommerce-pagination">';
+            $pagHtml .= paginate_links( apply_filters( 'woocommerce_pagination_args', array( // WPCS: XSS ok.
+                'base'         => $base,
+                'format'       => $format,
+                'add_args'     => false,
+                'current'      => max( 1, $current ),
+                'total'        => $total,
+                'prev_text'    => '&larr;',
+                'next_text'    => '&rarr;',
+                'type'         => 'list',
+                'end_size'     => 3,
+                'mid_size'     => 3,
+            ) ) );;
+            $pagHtml .= '</nav>';
+        }
 
         return $pagHtml;
     }
