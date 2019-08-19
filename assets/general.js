@@ -5,28 +5,31 @@
 
         // https://www.malot.fr/bootstrap-datetimepicker/demo.php
         const $datePicker = $("#RYSBD_DatePicker");
-        (function($){
-            $.fn.datepicker.dates['fr'] = {
-                days: ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"],
-                daysShort: ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
-                daysMin: ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"],
-                months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
-                monthsShort: ["janv.", "févr.", "mars", "avril", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."],
-                today: "Aujourd'hui",
-                monthsTitle: "Mois",
-                clear: "Effacer",
-                weekStart: 1,
-                format: "dd/mm/yyyy"
-            };
-        }(jQuery));
+        if($datePicker.length > 0){
+            (function($){
+                $.fn.datepicker.dates['fr'] = {
+                    days: ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"],
+                    daysShort: ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
+                    daysMin: ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"],
+                    months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+                    monthsShort: ["janv.", "févr.", "mars", "avril", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."],
+                    today: "Aujourd'hui",
+                    monthsTitle: "Mois",
+                    clear: "Effacer",
+                    weekStart: 1,
+                    format: "dd/mm/yyyy"
+                };
+            }(jQuery));
 
-        $datePicker.datepicker({
-            language: 'fr',
-            autoclose: false,
-            todayHighlight: true
-        }).datepicker('update', new Date());
-        $datePicker.data('datepicker').hide = function () {};
-        $datePicker.datepicker('show');
+            $datePicker.datepicker({
+                language: 'fr',
+                autoclose: false,
+                todayHighlight: true
+            }).datepicker('update', new Date());
+            $datePicker.data('datepicker').hide = function () {};
+            $datePicker.datepicker('show');
+        }
+
 
         $("#RYSBD_Date_Box_Calendar").html($('.datepicker.datepicker-dropdown'));
 
