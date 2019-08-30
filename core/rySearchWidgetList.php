@@ -23,7 +23,7 @@ class widgetRySearchByDate extends WP_Widget {
             echo $args['before_title'] . $title . $args['after_title'];
         }
 
-        include WP_PLUGIN_DIR . '/rySearch/core/_searchForm.php';
+        include WP_PLUGIN_DIR . '/rySearch/core/_filterForm.php';
         echo $args['after_widget'];
     }
 
@@ -72,7 +72,7 @@ class widgetRySearchByDestination extends WP_Widget {
             echo $args['before_title'] . $title . $args['after_title'];
         }
 
-        echo rySearchController::buildDestinationHtml();
+        //echo rySearchController::buildDestinationHtml();
 
         echo $args['after_widget'];
     }
@@ -122,7 +122,7 @@ class widgetRySearchByProf extends WP_Widget {
             echo $args['before_title'] . $title . $args['after_title'];
         }
 
-        echo rySearchController::buildActiveProfHtml();
+        //echo rySearchController::buildActiveProfHtml();
 
         echo $args['after_widget'];
     }

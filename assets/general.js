@@ -4,32 +4,44 @@
         const $priceForm = $('.woocommerce.widget_price_filter form');
 
         // https://www.malot.fr/bootstrap-datetimepicker/demo.php
-        const $datePicker = $("#RYSBD_DatePicker");
-        if($datePicker.length > 0){
-            (function($){
-                $.fn.datepicker.dates['fr'] = {
-                    days: ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"],
-                    daysShort: ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
-                    daysMin: ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"],
-                    months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
-                    monthsShort: ["janv.", "févr.", "mars", "avril", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."],
-                    today: "Aujourd'hui",
-                    monthsTitle: "Mois",
-                    clear: "Effacer",
-                    weekStart: 1,
-                    format: "dd/mm/yyyy"
-                };
-            }(jQuery));
+        // const $datePicker = $("#RYSBD_DatePicker");
+        // if($datePicker.length > 0){
+        //     (function($){
+        //         $.fn.datepicker.dates['fr'] = {
+        //             days: ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"],
+        //             daysShort: ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
+        //             daysMin: ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"],
+        //             months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+        //             monthsShort: ["janv.", "févr.", "mars", "avril", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."],
+        //             today: "Aujourd'hui",
+        //             monthsTitle: "Mois",
+        //             clear: "Effacer",
+        //             weekStart: 1,
+        //             format: "dd/mm/yyyy"
+        //         };
+        //     }(jQuery));
+        //
+        //     $datePicker.datepicker({
+        //         language: 'fr',
+        //         autoclose: false,
+        //         todayHighlight: true
+        //     }).datepicker('update', new Date());
+        //     $datePicker.data('datepicker').hide = function () {};
+        //     $datePicker.datepicker('show');
+        // }
 
-            $datePicker.datepicker({
-                language: 'fr',
-                autoclose: false,
-                todayHighlight: true
-            }).datepicker('update', new Date());
-            $datePicker.data('datepicker').hide = function () {};
-            $datePicker.datepicker('show');
+        const $rangeDatePicker = $("#RY_Filter_Date");
+        if($rangeDatePicker.length > 0) {
+            $rangeDatePicker.daterangepicker({
+                opens: 'left',
+                autoApply: true,
+                locale: {
+                    format: 'DD/MM/YYYY'
+                }
+            }, function(start, end,) {
+                $('#RY_Filter_Date_Values').val(start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+            });
         }
-
 
         $("#RYSBD_Date_Box_Calendar").html($('.datepicker.datepicker-dropdown'));
 
@@ -44,8 +56,8 @@
             }
 
             const isInput = $(e.target).is('.rysbd_select_input, .active');
-            const $rysbd_select = $('.rysbd_select.active');
-            const $parent = $(e.target).closest('.rysbd_select');
+            const $rysbd_select = $('.ry_ul_select.active');
+            const $parent = $(e.target).closest('.ry_ul_select');
             const isInsideSelectSearchBox = $parent.length > 0;
             if (!isInput && !isInsideSelectSearchBox && !$rysbd_select.hasClass("hideBox")){
                 // Clicked outside the box
@@ -56,9 +68,9 @@
 
         });
 
-        $datePicker.on("click", function () {
-            $("#RYSBD_Date_Box_Calendar").html($('.datepicker.datepicker-dropdown'));
-        });
+        // $datePicker.on("click", function () {
+        //     $("#RYSBD_Date_Box_Calendar").html($('.datepicker.datepicker-dropdown'));
+        // });
 
         $("#RYSBD_Date").on("click", function (e) {
             const isClearDate = $(e.target).is('.clearSearch');
@@ -130,22 +142,21 @@
         });
 
         $(".rysbd_select_input").on("click", function () {
-
             const $this = $(this);
-            const $parent = $this.closest('.et_pb_widget');
-            const $selectBox = $parent.find('.rysbd_select');
+            const $parent = $this.closest('.RY_UL_Select_html');
+            const $selectBox = $parent.find('.ry_ul_select');
             const isClose = $selectBox.hasClass("hideBox");
 
             $('.et_pb_widget .rysbd_select_input.active').removeClass('active');
-            $('.et_pb_widget .rysbd_select.active').removeClass('active');
-            $('.et_pb_widget .rysbd_select').addClass('hideBox');
+            $('.et_pb_widget .ry_ul_select.active').removeClass('active');
+            $('.et_pb_widget .ry_ul_select').addClass('hideBox');
 
             $selectBox.toggleClass("hideBox", !isClose);
             $selectBox.toggleClass("active", isClose);
-            $parent.find('.rysbd_select_input').toggleClass("active", isClose);
+            $parent.find('.ry_ul_select').toggleClass("active", isClose);
         });
 
-        $(".rysbd_select.active li").on("click", function () {
+        $(".ry_ul_select.active li").on("click", function () {
             $(this).find('a').click();
         });
 
@@ -160,7 +171,7 @@
 
             const $this = $(this);
             const $parent = $this.closest('.et_pb_widget');
-            const $selectBox = $parent.find('.rysbd_select');
+            const $selectBox = $parent.find('.ry_ul_select');
             const isClose = $selectBox.hasClass("hideBox");
             $selectBox.toggleClass("hideBox", !isClose);
             $selectBox.toggleClass("active", isClose);

@@ -28,171 +28,44 @@ class rySearchController
     public static function getWPQuery()
     {
         $keyword = self::urlGetParameter(RY_SEARCH_PARAM_KEY);
-        $duration = self::urlGetParameter(RY_SEARCH_PARAM_DURATION);
-        $prof = self::urlGetParameter(RY_SEARCH_PARAM_PROF);
-        $minPrice = self::urlGetParameter(RY_SEARCH_PARAM_MIN_PRICE);
-        $maxPrice = self::urlGetParameter(RY_SEARCH_PARAM_MAX_PRICE);
-        $destination = self::urlGetParameter(RY_SEARCH_PARAM_DESTINATION);
-        $additionalParams = array(
-            'organisateur_name' => $prof,
-            'min_price' => $minPrice,
-            'max_price' => $maxPrice,
-            'destination' => $destination,
-        );
+        $calendar = self::urlGetParameter(RY_SEARCH_PARAM_CALENDAR);
+        $month = self::urlGetParameter(RY_SEARCH_PARAM_MONTH);
+        $parameterList = self::getRYFilterParameterList();
 
-        if(strlen($duration) == 1){ // is day
-            $startDateReq = self::urlGetParameter('date');
-            //if dayDuration is picked but not a day from the calendar, start from today
-            $startDate = $startDateReq ? date('Y-m-d', strtotime($startDateReq)) : date('Y-m-d');
-            $endDate = date('Y-m-d', strtotime("+$duration day", strtotime($startDate)));
-        } elseif(strlen($duration) > 4) { //is month
-            $month = $duration . '-01';
+        if($month){
+            $month = $month . '-01';
             $startDate = date("Y-m-01", strtotime($month));
             $endDate = date("Y-m-t", strtotime($month));
-        } else { // All from today to today + 100 years
+        } elseif($calendar){
+            $dateArray = explode(' to ', $calendar);
+            $startDate = date('Y-m-d', strtotime($dateArray[0]));
+            $endDate = date('Y-m-d', strtotime($dateArray[1]));
+        } else {
+            // All from today to today + 100 years
             $startDate = date('Y-m-d'); // from today
             $endDate = date('Y-m-d', strtotime("+100 year", strtotime($startDate)));
         }
 
-        $query = rySearchController::buildQuery($keyword, $startDate, $endDate, $additionalParams);
+        $query = rySearchQueryBuilder::buildQuery($keyword, $startDate, $endDate, $parameterList);
 
         return $query;
     }
 
-    /**
-     * @param string $keyword
-     * @param string $startDate
-     * @param string $endDate
-     * @param array $additionalParams
-     * @return WP_Query
-     */
-    public static function buildQuery($keyword, $startDate, $endDate, $additionalParams = array())
+    private static function getRYFilterParameterList()
     {
-        global $paged;
+        $profParameter = self::urlGetParameter(RY_SEARCH_PARAM_PROF);
+        $destinationParameter = self::urlGetParameter(RY_SEARCH_PARAM_DESTINATION);
+        $typeParameter = self::urlGetParameter(RY_SEARCH_PARAM_TYPE);
 
-        $paged = ( get_query_var('page') ) ? get_query_var('page') : 1;
+        $parameterList = [];
+        $parameterList = isset($profParameter) && $profParameter !== '' ?
+            array_merge($parameterList, array(RY_SEARCH_PARAM_PROF => $profParameter)) : $parameterList;
+        $parameterList = isset($destinationParameter) && $destinationParameter !== '' ?
+            array_merge($parameterList, array(RY_SEARCH_PARAM_DESTINATION => $destinationParameter)) : $parameterList;
+        $parameterList = isset($typeParameter) && $typeParameter !== '' ?
+            array_merge($parameterList, array(RY_SEARCH_PARAM_TYPE => $typeParameter)) : $parameterList;
 
-        $keyCleared = self::clearKeyword($keyword);
-        $keySearchArr = $keyCleared ? array('s' => $keyCleared) : array();
-
-        $metaQuery = self::buildMetaQuery($startDate, $endDate, $additionalParams);
-        $taxQuery = self::buildTaxonomyQuery($additionalParams);
-
-        $args = array(
-            'paged' => $paged,
-            'posts_per_page' => 10,
-            'post_type'  => 'product',
-            'post_status' => 'publish',
-            'meta_key' => 'sejour_date_from',
-            'orderby' => 'meta_value',
-            'order'   => 'ASC',
-            'meta_query' => $metaQuery,
-            'tax_query' => $taxQuery,
-        );
-
-        $queryArgs = array_merge($keySearchArr, $args);
-
-        $query = new WP_Query( $queryArgs );
-        $query->isRYSearch = true;
-
-        return $query;
-    }
-
-    /**
-     * @param $startDate
-     * @param $endDate
-     * @param array $additionalParams
-     * @return string
-     */
-    private static function buildMetaQuery($startDate, $endDate, $additionalParams = array())
-    {
-        $inMetaArr = ['organisateur_name'];
-        $inPriceArr = ['_price', '_regular_price', '_sale_price'];
-
-        $minPrice = $additionalParams['min_price'] !== '' ? $additionalParams['min_price'] : 1;
-        $maxPrice = $additionalParams['max_price'] !== '' ? $additionalParams['max_price'] : 10000000000;
-
-        $inPriceQuery = array('relation' => 'OR');
-        foreach ($inPriceArr as $metaKey){
-            $inPriceQuery[] = array(
-                'key' => $metaKey,
-                'type'    => 'numeric',
-                'value' => array( $minPrice, $maxPrice ),
-                'compare' => 'BETWEEN'
-            );
-        }
-
-        $baseMetaQuery = array(
-            'relation' => 'AND',
-            array(
-                'key' => 'sejour_date_from',
-                'value' => $startDate,
-                'compare' => '>=',
-            ),
-            array(
-                'key' => 'sejour_date_to',
-                'value' => $endDate,
-                'compare' => '<=',
-            ),
-            $inPriceQuery,
-        );
-
-        $metaKeyArr = array();
-        foreach ($additionalParams as $key => $value){
-            if($value && in_array($key, $inMetaArr)){
-                $metaKeyArr [] = array(
-                    'key' => $key,
-                    'value' => $value,
-                    'compare' => '=',
-                );
-            }
-        }
-
-        $metaQuery = array_merge($baseMetaQuery, $metaKeyArr);
-
-        return $metaQuery;
-    }
-
-    /**
-     * @param array $additionalParams
-     * @return array
-     */
-    private static function buildTaxonomyQuery($additionalParams = array())
-    {
-        $inTaxArr = ['destination'];
-        $taxKeyArr = array();
-
-        foreach ($additionalParams as $key => $value){
-            if($value && in_array($key, $inTaxArr)){
-                $destinationTermList = get_terms($args = array('taxonomy' => 'product_cat', 'slug' => $value));
-                $taxKeyArr = count($destinationTermList) > 1 ? array('relation' => 'OR') : array();
-
-                foreach ($destinationTermList as $destinationTerm) {
-                    $taxKeyArr[] = array(
-                        'taxonomy' => 'product_cat',
-                        'field'    => 'term_id',
-                        'terms'    => $destinationTerm->term_id,
-                    );
-                }
-            }
-        }
-
-        return $taxKeyArr;
-    }
-
-    /**
-     * @param $string string
-     * @return string
-     */
-    private static function clearKeyword($string)
-    {
-        $string = html_entity_decode($string, ENT_QUOTES);
-        $string = preg_replace("/&#?[a-z0-9]+;/i","", $string); // Remove ascii characters
-        $string = remove_accents($string); // Remove accents
-        $string = preg_replace('!\s+!', ' ', $string); // Convert multiple consecutive space in single space
-        $string = preg_replace("/[^A-Za-z0-9\-\_\'\’\ ]/", "", $string); // Removes special chars
-
-        return trim($string);
+        return $parameterList;
     }
 
     public static function getRefererParameters()
@@ -234,49 +107,41 @@ class rySearchController
 
         return $parameterValue;
     }
-
-    public static function getSelectedDuration($duration)
+    // SEARCH BY DESTINATION
+    public static function buildDestinationHtml()
     {
-        $dayDurationArray = self::getDayArr();
-        $monthDurationArray = self::getNextTwelveMonthsArr();
+        $destinationList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_region');
+        $destinationULSelect = self::buildULFilter($destinationList, RY_SEARCH_PARAM_DESTINATION, 'Destination');
 
-        if($dayDurationArray[$duration]){
-            $durationTXT = $dayDurationArray[$duration];
-        } elseif($monthDurationArray[$duration]){
-            $durationTXT = $monthDurationArray[$duration];
-        } else {
-            $durationTXT = '';
-        }
-
-        return $durationTXT;
+        return $destinationULSelect;
     }
 
-    public static function getDayDurationHTML($duration)
+    // SEARCH BY PROFESSEUR
+    public static function buildProfHtml()
     {
-        $dayDurationArray = self::getDayArr();
-        $dayDurationHTML = self::buildRadio($dayDurationArray, 'duration', $duration, 'day');
+        $profList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_professeur_organisateur');
+        $profULSelect = self::buildULFilter($profList, RY_SEARCH_PARAM_PROF, 'Professeur');
 
-        return $dayDurationHTML;
+        return $profULSelect;
     }
 
-    public static function getMonthDurationHTML($duration)
+    // SEARCH BY TYPE
+    public static function buildTypeHtml()
+    {
+        $typeList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_type-de-yoga');
+        $typeULSelect = self::buildULFilter($typeList, RY_SEARCH_PARAM_TYPE, 'Type');
+
+        return $typeULSelect;
+    }
+
+    // SEARCH BY MONTH
+    public static function buildMonthHTML()
     {
         $monthDurationArray = self::getNextTwelveMonthsArr();
-
-        $monthDurationHTML = self::buildRadio($monthDurationArray, 'duration', $duration, 'month');
+        $month = self::convertArrayToDBOutput($monthDurationArray);
+        $monthDurationHTML = self::buildULFilter($month, RY_SEARCH_PARAM_MONTH, 'Mois');
 
         return $monthDurationHTML;
-    }
-
-    private static function getDayArr()
-    {
-        $dayDurationArray = array(
-            "1"=>__('1 jour'),
-            "3"=>__('3 jours'),
-            "7"=>__('7 jours')
-        );
-
-        return $dayDurationArray;
     }
 
     private static function getNextTwelveMonthsArr()
@@ -294,122 +159,42 @@ class rySearchController
         return $months;
     }
 
+    private static function convertArrayToDBOutput($array)
+    {
+        $dbOutput = [];
+        foreach ($array as $key => $value) {
+            $single = new \stdClass();
+            $single->slug = $key;
+            $single->name = $value;
+            $dbOutput[] = $single;
+        }
+
+        return $dbOutput;
+    }
+
     private static function trMonthName($monthName)
     {
-        $name = '';
-        switch ( strtolower( $monthName ) ) {
-            case 'january':
-                $name = 'Janvier';
-                break;
-            case 'february':
-                $name = 'Février';
-                break;
-            case 'march':
-                $name = 'Mars';
-                break;
-            case 'april':
-                $name = 'Avril';
-                break;
-            case 'may':
-                $name = 'Mai';
-                break;
-            case 'june':
-                $name = 'Juin';
-                break;
-            case 'july':
-                $name = 'Juillet';
-                break;
-            case 'august':
-                $name = 'Août';
-                break;
-            case 'september':
-                $name = 'Septembre';
-                break;
-            case 'october':
-                $name = 'Octobre';
-                break;
-            case 'november':
-                $name = 'Novembre';
-                break;
-            case 'december':
-                $name = 'Décembre';
-                break;
-        }
+        $array = array(
+            'january' => 'Janvier',
+            'february' => 'Février',
+            'march' => 'Mars',
+            'april' => 'Avril',
+            'may' => 'Mai',
+            'june' => 'Juin',
+            'july' => 'Juillet',
+            'august' => 'Août',
+            'september' => 'Septembre',
+            'october' => 'Octobre',
+            'november' => 'Novembre',
+            'december' => 'Décembre',
+        );
+        $name = $array[strtolower( $monthName )];
 
         return $name;
     }
 
-    private static function buildRadio(array $inputArr, $name, $duration = '', $additionalClass = '')
-    {
-        $radioHTML = '<div class="multiChoiceGroupSection">';
-        foreach ($inputArr as $inputValue => $inputName) {
-            $isChecked = $duration == $inputValue ? 'checked' : '';
-            $groupCheckedClass = $isChecked ? 'durationGroupSelected' : '';
-            $inputCheckedClass = $isChecked ? 'durationSelected' : '';
-            $id = "$name"."_"."$inputValue";
-            $groupClass = "inputRadio durationSingleChoice " . $groupCheckedClass;
-            $inputClass = "multiChoiceGroupInput durationChoice " . $additionalClass .' '. $inputCheckedClass;
-            $singleInputHTML = '<div class="'.$groupClass.'">';
-            $singleInputHTML .= '<input type="radio" class="'.$inputClass.'"
-               id="'.$id.'"
-               name="'.$name.'"
-               value="'.$inputValue.'" 
-               ' . $isChecked . '/>';
-            $singleInputHTML .= '<label class="label-text" for="'.$id.'">'.$inputName.'</label>';
-            $singleInputHTML .= '</div>';
-            $radioHTML .= $singleInputHTML;
-        }
-        $radioHTML .= '</div>';
-
-        return $radioHTML;
-    }
-
-    // SEARCH BY DESTINATION
-    public static function buildDestinationHtml()
-    {
-        $destinationList = self::getDestinationList();
-        $destinationSelect = self::buildULFilter($destinationList, RY_SEARCH_PARAM_DESTINATION);
-
-        return $destinationSelect;
-    }
-
-    private static function getDestinationList()
-    {
-        global $wpdb;
-
-        $tax_query = "SELECT term_id FROM `wp_term_taxonomy` WHERE taxonomy = 'pa_region'";
-        $name_query = "SELECT DISTINCT * FROM `wp_terms` WHERE term_id IN ($tax_query) GROUP BY name ORDER BY name ASC";
-        $destinationList = $wpdb->get_results( $name_query );
-
-        return $destinationList;
-    }
-
-    // SEARCH BY PROFESSEUR
-    public static function buildActiveProfHtml()
-    {
-        $activeProfList = self::getActiveProfList();
-        $activeProfSelect = self::buildULFilter($activeProfList, RY_SEARCH_PARAM_PROF);
-
-        return $activeProfSelect;
-    }
-
-    private static function getActiveProfList()
-    {
-        global $wpdb;
-
-        $todayFullFormat = new DateTime();
-        $today = $todayFullFormat->format("Y-m-d");
-
-        $post_query = "SELECT post_id FROM `wp_postmeta` WHERE meta_key = 'sejour_date_from' AND meta_value >= '$today'";
-        $name_query = "SELECT DISTINCT meta_value FROM `wp_postmeta` WHERE meta_key = 'organisateur_name' AND post_id IN ($post_query)";
-        $query = "SELECT * FROM `wp_terms` WHERE name IN ($name_query) GROUP BY name ORDER BY name ASC";
-        $activeProfList = $wpdb->get_results( $query );
-
-        return $activeProfList;
-    }
-
     // MAIN
-    private static function buildULFilter($inputList, $inputName)
+    private static function buildULFilter($inputList, $inputName, $defaultName)
     {
         $url = RY_SEARCH_ACTION_URL;
         $isFirst = true;
@@ -422,58 +207,44 @@ class rySearchController
         }
 
         $inputChar = $isFirst ? '?' : '&';
-
         $defaultUrl = $url. $inputChar . $inputName;
         $clearUrl = $defaultUrl . '=all';
         $liListHTML = '';
-        foreach ($inputList as $singleInput){
-            $name = $singleInput->name;
-            $slug = $singleInput->slug;
+        if($inputList){
+            foreach ($inputList as $singleInput){
+                $name = $singleInput->name;
+                $slug = $singleInput->slug;
 
-            if($inputName === RY_SEARCH_PARAM_DESTINATION){
-                $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $slug;
-                $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . $slug;
-            } else {
-                $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $name;
-                $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . urlencode($name);
+                if(in_array($inputName, array(RY_SEARCH_PARAM_PROF, RY_SEARCH_PARAM_DESTINATION, RY_SEARCH_PARAM_MONTH, RY_SEARCH_PARAM_TYPE))){
+                    $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $slug;
+                    $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . $slug;
+                } else {
+                    $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $name;
+                    $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . urlencode($name);
+                }
+
+                $selectedClassHTML = '';
+                $selectedBeforeHTML = '';
+                if($isSelected){
+                    $destNameSelected = $name;
+                    $selectedClassHTML = 'class="ulSelected"';
+                    $selectedBeforeHTML = '<span class="spanSelected"><a href="'.$clearUrl.'">x</a></span><div class="clear"></div>';
+                }
+
+                $liHTML = '<li '.$selectedClassHTML.'><a data-type="select" href="'.$currentUrl.'">' . $name . '</a>'.$selectedBeforeHTML.'</li>';
+                $liListHTML .= $liHTML;
             }
-
-            $selectedClassHTML = '';
-            $selectedBeforeHTML = '';
-            if($isSelected){
-                $destNameSelected = $name;
-                $selectedClassHTML = 'class="ulSelected"';
-                $selectedBeforeHTML = '<span class="spanSelected"><a href="'.$clearUrl.'">x</a></span><div class="clear"></div>';
-            }
-
-            $liHTML = '<li '.$selectedClassHTML.'><a data-type="select" href="'.$currentUrl.'">' . $name . '</a>'.$selectedBeforeHTML.'</li>';
-            $liListHTML .= $liHTML;
-
+        } else {
+            $liListHTML .= "<li>Il n'existe pas d'options correspondants à vos critères de recherche</li>";
         }
 
-        $selected = isset($destNameSelected) ? $destNameSelected : 'Filtre :';
+        $selected = isset($destNameSelected) ? $destNameSelected : $defaultName;
         $ulHTML = '<div class="rysbd_select_input">'.$selected.'</div>';
-        $ulHTML .= '<ul class="rysbd_select hideBox">';
+        $ulHTML .= '<ul class="ry_ul_select hideBox">';
         $ulHTML .= $liListHTML;
         $ulHTML .= '</ul>';
 
         return $ulHTML;
-    }
-
-
-    private static function buildSelectFilter($inputList, $inputName)
-    {
-        $selectHTML = '<select class="rysbd_select" name="'.$inputName.'">';
-        $selectHTML .= '<option value="" disabled selected>Filtre:</option>';
-        foreach ($inputList as $singleInput){
-            $name = $singleInput->name;
-
-            $optionHTML = '<option value="'.$name.'">' . $name . '</option>';
-            $selectHTML .= $optionHTML;
-        }
-        $selectHTML .= '</select>';
-
-        return $selectHTML;
     }
 
     public static function getPagination()
@@ -514,6 +285,46 @@ class rySearchController
         }
 
         return $pagHtml;
+    }
+
+    private static function buildSelectFilter($optionArray, $inputName, $inputDisplayName, $selectedValue = null)
+    {
+        $defaultSelected = is_null($selectedValue) ? 'selected' : '';
+        $selectHTML = '<select class="ry_select" name="'.$inputName.'">';
+        $selectHTML .= '<option value="" '.$defaultSelected.'>'.$inputDisplayName.':</option>';
+        foreach ($optionArray as $value => $name){
+            $selected = $value === $selectedValue ? 'selected' : '';
+            $optionHTML = '<option value="'.$value.'" '.$selected.'>' . $name . '</option>';
+            $selectHTML .= $optionHTML;
+        }
+        $selectHTML .= '</select>';
+
+        return $selectHTML;
+    }
+
+    private static function buildRadio(array $inputArr, $name, $duration = '', $additionalClass = '')
+    {
+        $radioHTML = '<div class="multiChoiceGroupSection">';
+        foreach ($inputArr as $inputValue => $inputName) {
+            $isChecked = $duration == $inputValue ? 'checked' : '';
+            $groupCheckedClass = $isChecked ? 'durationGroupSelected' : '';
+            $inputCheckedClass = $isChecked ? 'durationSelected' : '';
+            $id = "$name"."_"."$inputValue";
+            $groupClass = "inputRadio durationSingleChoice " . $groupCheckedClass;
+            $inputClass = "multiChoiceGroupInput durationChoice " . $additionalClass .' '. $inputCheckedClass;
+            $singleInputHTML = '<div class="'.$groupClass.'">';
+            $singleInputHTML .= '<input type="radio" class="'.$inputClass.'"
+               id="'.$id.'"
+               name="'.$name.'"
+               value="'.$inputValue.'" 
+               ' . $isChecked . '/>';
+            $singleInputHTML .= '<label class="label-text" for="'.$id.'">'.$inputName.'</label>';
+            $singleInputHTML .= '</div>';
+            $radioHTML .= $singleInputHTML;
+        }
+        $radioHTML .= '</div>';
+
+        return $radioHTML;
     }
 
 }
