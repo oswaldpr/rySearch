@@ -24,7 +24,7 @@ define('RY_SEARCH_DIR', plugins_url() . '/'.$pluginName);
 define('RY_SEARCH_ACTION_URL', home_url() . RY_SEARCH_SLUG);
 define('RY_SEARCH_DEFAULT_SEARCH', home_url() . '/toutes-les-retraites');
 define('RY_SEARCH_PARAM_KEY', 'rys');
-define('RY_SEARCH_PARAM_CALENDAR', 'calendrier');
+define('RY_SEARCH_PARAM_DATES', 'dates');
 define('RY_SEARCH_PARAM_MONTH', 'mois');
 define('RY_SEARCH_PARAM_DESTINATION', 'destination');
 define('RY_SEARCH_PARAM_TYPE', 'type');
@@ -97,7 +97,7 @@ function rySearchRedirect()
         $uriContainsAllParameters = true;
         $refererParameters = rySearchController::getRefererParameters();
         foreach ($refererParameters as $key => $value) {
-            if($value && strpos($uri, $key) === false){
+            if($value && strpos($uri, $key) === false && $key !== RY_SEARCH_PARAM_MONTH){
                 $uriContainsAllParameters = false;
                 break;
             }

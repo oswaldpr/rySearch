@@ -215,6 +215,36 @@
     clear: both;
 }
 
+#RY_Filter_Date, #RY_Filter_Text {
+    color: #000;
+}
+
+#RY_Filter_Inputs input {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#RYSBD_clearSearch, #RYSBD_clearSearch:hover {
+    position: relative;
+    top: -42px;
+}
+
+.waiting-result-Display {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255,0.75);
+}
+
+.waiting-result-Display img  {
+    position: absolute;
+    width: 80px;
+    top: 45%;
+    left: 48%;
+}
 
 @media screen and (min-width: 770px) {
     #RYSBD_Date_Box{

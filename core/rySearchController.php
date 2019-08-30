@@ -22,22 +22,57 @@ class rySearchController
         return $actionUrl;
     }
 
+    private static function getURIParts()
+    {
+        $uri = $_SERVER['REQUEST_URI'];
+        $uriArr = explode('?', $uri);
+        $paramArr = explode('&', $uriArr[1]);
+
+        $uriParts = new \stdClass();
+        $uriParts->base = $uriArr[0];
+        $uriParts->paramArr = $paramArr;
+
+        return $uriParts;
+    }
+
+    public static function getDefaultSearchUrl($paramToBeDefault)
+    {
+        $uriParts = self::getURIParts();
+        $uri = $uriParts->base;
+        $isFirst = true;
+        foreach ($uriParts->paramArr as $param) {
+            if(strpos($param, $paramToBeDefault) === false){
+                $char = $isFirst ? '?' : '&';
+                $uri .= $char . $param;
+                $isFirst = false;
+            }
+        }
+
+        return $uri;
+    }
+
     /**
      * @return WP_Query
      */
     public static function getWPQuery()
     {
         $keyword = self::urlGetParameter(RY_SEARCH_PARAM_KEY);
-        $calendar = self::urlGetParameter(RY_SEARCH_PARAM_CALENDAR);
-        $month = self::urlGetParameter(RY_SEARCH_PARAM_MONTH);
+        $dateRangeParameter = self::getDateRangeParameter();
         $parameterList = self::getRYFilterParameterList();
 
-        if($month){
-            $month = $month . '-01';
-            $startDate = date("Y-m-01", strtotime($month));
-            $endDate = date("Y-m-t", strtotime($month));
-        } elseif($calendar){
-            $dateArray = explode(' to ', $calendar);
+        $query = rySearchQueryBuilder::buildQuery($keyword, $dateRangeParameter->startDate, $dateRangeParameter->endDate, $parameterList);
+
+        return $query;
+    }
+
+    /**
+     * @return \stdClass
+     */
+    public static function getDateRangeParameter()
+    {
+        $dates = self::urlGetParameter(RY_SEARCH_PARAM_DATES);
+        if($dates){
+            $dateArray = explode(' to ', $dates);
             $startDate = date('Y-m-d', strtotime($dateArray[0]));
             $endDate = date('Y-m-d', strtotime($dateArray[1]));
         } else {
@@ -46,9 +81,25 @@ class rySearchController
             $endDate = date('Y-m-d', strtotime("+100 year", strtotime($startDate)));
         }
 
-        $query = rySearchQueryBuilder::buildQuery($keyword, $startDate, $endDate, $parameterList);
+        $dateRangeParameter = new \stdClass();
+        $dateRangeParameter->startDate = $startDate;
+        $dateRangeParameter->endDate = $endDate;
 
-        return $query;
+        return $dateRangeParameter;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getDateRangeDefaultValue()
+    {
+        $dateRangeParameter = rySearchController::getDateRangeParameter();
+        $startDate = isset($dateRangeParameter->startDate) ? date("d/m/Y", strtotime($dateRangeParameter->startDate)) : '';
+        $endDate = isset($dateRangeParameter->endDate) ? date("d/m/Y", strtotime($dateRangeParameter->endDate)) : '';
+        $dateRangeValue = 'Date de début --> Date de fin';
+        $dateRangeValue = $startDate . ' --> ' . $endDate;
+
+        return $dateRangeValue;
     }
 
     private static function getRYFilterParameterList()
@@ -199,7 +250,7 @@ class rySearchController
         $url = RY_SEARCH_ACTION_URL;
         $isFirst = true;
         foreach ($_GET as $name => $value){
-            if($name !== $inputName){
+            if($name !== $inputName || $inputName === RY_SEARCH_PARAM_MONTH){
                 $char = $isFirst ? '?' : '&';
                 $url .= $char . $name .'='.$value;
                 $isFirst = false;
@@ -215,9 +266,37 @@ class rySearchController
                 $name = $singleInput->name;
                 $slug = $singleInput->slug;
 
-                if(in_array($inputName, array(RY_SEARCH_PARAM_PROF, RY_SEARCH_PARAM_DESTINATION, RY_SEARCH_PARAM_MONTH, RY_SEARCH_PARAM_TYPE))){
+                if(in_array($inputName, array(RY_SEARCH_PARAM_PROF, RY_SEARCH_PARAM_DESTINATION, RY_SEARCH_PARAM_TYPE))){
                     $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $slug;
                     $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . $slug;
+                } elseif($inputName === RY_SEARCH_PARAM_MONTH) {
+                    $month = $slug . '-01';
+                    $startDate = date("Y-m-01", strtotime($month));
+                    $endDate = date("Y-m-t", strtotime($month));
+                    $dateSlug = '&' . RY_SEARCH_PARAM_DATES . '=' . $startDate . ' to ' . $endDate;
+                    $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $slug;
+
+                    $str = RY_SEARCH_PARAM_DATES . '=';
+                    if(strpos($url, '?' . $str) > 0){
+                        $urlArray = explode('?', $url);
+                        $monthDefaultUrl = $urlArray[0] . '?' . RY_SEARCH_PARAM_MONTH;
+                    } elseif (strpos($url, '&' . $str) > 0){
+                        $urlArray = explode('&', $url);
+                        $monthDefaultUrl = $urlArray[0] . '&' . RY_SEARCH_PARAM_MONTH;
+                    } else {
+                        $monthDefaultUrl = $defaultUrl;
+                    }
+
+                    if(isset($urlArray)){
+                        foreach ($urlArray as $index => $urlPart) {
+                            $isDateParameter = strpos($urlPart, $str) > 0;
+                            if($index > 0 && $isDateParameter){
+                                $monthDefaultUrl .= '&' . $urlPart;
+                            }
+                        }
+                    }
+
+                    $currentUrl = $isSelected ? $clearUrl : $monthDefaultUrl . '=' . $slug . $dateSlug;
                 } else {
                     $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $name;
                     $currentUrl = $isSelected ? $clearUrl : $defaultUrl . '=' . urlencode($name);
@@ -231,7 +310,7 @@ class rySearchController
                     $selectedBeforeHTML = '<span class="spanSelected"><a href="'.$clearUrl.'">x</a></span><div class="clear"></div>';
                 }
 
-                $liHTML = '<li '.$selectedClassHTML.'><a data-type="select" href="'.$currentUrl.'">' . $name . '</a>'.$selectedBeforeHTML.'</li>';
+                $liHTML = '<li '.$selectedClassHTML.'><a class="ry_li_select_value" data-type="select" href="'.$currentUrl.'">' . $name . '</a>'.$selectedBeforeHTML.'</li>';
                 $liListHTML .= $liHTML;
             }
         } else {
