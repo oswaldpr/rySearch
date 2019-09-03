@@ -208,10 +208,6 @@ a.clearSearch {
      color: #fff !important;
 }
 
-.no-margin-bottom{
-    margin-bottom: 0 !important;
-}
-
 .clear{
     clear: both;
 }
@@ -250,13 +246,19 @@ a.clearSearch {
 
 #RY_Filter_Inputs .RY_Filter_Row {
     position:relative;
+    min-height: 58px;
 }
 
 .RY_Filter_Row {
     margin-bottom: 4%;
 }
 
-#RY_Filter_Date_Values {
+#RY_Filter_Date {
+    color: #fff !important;
+    border: 0px solid rgba(255,255,255, 1) !important;
+}
+
+#RY_Filter_Date_Values, #RY_Filter_Date {
     position:absolute;
     top: 0;
     left: 0;
@@ -310,6 +312,10 @@ a.clearSearch {
         float: right;
         position: relative;
         top: 60px;
+    }
+
+    .no-margin-bottom{
+        margin-bottom: 0 !important;
     }
 }
 

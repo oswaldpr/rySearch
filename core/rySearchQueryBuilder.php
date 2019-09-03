@@ -8,13 +8,27 @@ use WP_Query;
 class rySearchQueryBuilder
 {
     /**
+     * @return WP_Query
+     */
+    public static function getWPQuery()
+    {
+        $keyword = rySearchController::urlGetParameter(RY_SEARCH_PARAM_KEY);
+        $dateRangeParameter = rySearchController::getDateRangeParameter();
+        $parameterList = rySearchController::getRYFilterParameterList();
+
+        $query = self::buildQuery($keyword, $dateRangeParameter->startDate, $dateRangeParameter->endDate, $parameterList);
+
+        return $query;
+    }
+
+    /**
      * @param string $keyword
      * @param string $startDate
      * @param string $endDate
      * @param array $parameterList
      * @return WP_Query
      */
-    public static function buildQuery($keyword, $startDate, $endDate, $parameterList = array())
+    private static function buildQuery($keyword, $startDate, $endDate, $parameterList = array())
     {
         global $paged;
         
@@ -39,7 +53,6 @@ class rySearchQueryBuilder
         $queryArgs = array_merge($keySearchArr, $args);
 
         $query = new WP_Query( $queryArgs );
-        $query->isRYSearch = true;
 
         return $query;
     }
@@ -94,24 +107,22 @@ class rySearchQueryBuilder
 
         foreach ($parameterList as $key => $value){
             if($key === RY_SEARCH_PARAM_PROF){
-                $profTermList = get_terms($args = array('taxonomy' => 'pa_professeur_organisateur', 'slug' => $value));
-                $taxKeyArr[] = self::buildSingleTaxonomyQuery($profTermList, 'pa_professeur_organisateur');
+                $taxKeyArr[] = self::buildSingleTaxonomyQuery($value, 'pa_professeur_organisateur');
             }
             if($key === RY_SEARCH_PARAM_DESTINATION){
-                $destinationTermList = get_terms($args = array('taxonomy' => 'pa_region', 'slug' => $value));
-                $taxKeyArr[] = self::buildSingleTaxonomyQuery($destinationTermList, 'pa_region');
+                $taxKeyArr[] = self::buildSingleTaxonomyQuery($value, 'pa_region');
             }
             if($key === RY_SEARCH_PARAM_TYPE){
-                $typeTermList = get_terms($args = array('taxonomy' => 'pa_type-de-yoga', 'slug' => $value));
-                $taxKeyArr[] = self::buildSingleTaxonomyQuery($typeTermList, 'pa_type-de-yoga');
+                $taxKeyArr[] = self::buildSingleTaxonomyQuery($value, 'pa_type-de-yoga');
             }
         }
 
         return $taxKeyArr;
     }
 
-    private static function buildSingleTaxonomyQuery($termList, $taxonomyName)
+    private static function buildSingleTaxonomyQuery($value, $taxonomyName)
     {
+        $termList = get_terms($args = array('taxonomy' => $taxonomyName, 'slug' => $value));
         $term = current($termList);
         $singleTaxKeyArr = array(
             'taxonomy' => $taxonomyName,

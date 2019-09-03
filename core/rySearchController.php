@@ -3,7 +3,6 @@
 namespace rySearch\core;
 
 use DateTime;
-use WP_Query;
 
 class rySearchController
 {
@@ -59,27 +58,13 @@ class rySearchController
     }
 
     /**
-     * @return WP_Query
-     */
-    public static function getWPQuery()
-    {
-        $keyword = self::urlGetParameter(RY_SEARCH_PARAM_KEY);
-        $dateRangeParameter = self::getDateRangeParameter();
-        $parameterList = self::getRYFilterParameterList();
-
-        $query = rySearchQueryBuilder::buildQuery($keyword, $dateRangeParameter->startDate, $dateRangeParameter->endDate, $parameterList);
-
-        return $query;
-    }
-
-    /**
      * @return \stdClass
      */
     public static function getDateRangeParameter()
     {
         $dates = self::urlGetParameter(RY_SEARCH_PARAM_DATES);
         if($dates){
-            $dateArray = explode(' to ', $dates);
+            $dateArray = explode(RY_SEARCH_PARAM_DATES_SEPARATOR, $dates);
             $startDate = date('Y-m-d', strtotime($dateArray[0]));
             $endDate = date('Y-m-d', strtotime($dateArray[1]));
         } else {
@@ -104,7 +89,7 @@ class rySearchController
         $startDate = isset($dateRangeParameter->startDate) ? date("d/m/Y", strtotime($dateRangeParameter->startDate)) : '';
         $endDate = isset($dateRangeParameter->endDate) ? date("d/m/Y", strtotime($dateRangeParameter->endDate)) : '';
         //$dateRangeValue = 'Date de début --> Date de fin';
-        $dateRangeValue = $startDate . ' --> ' . $endDate;
+        $dateRangeValue = $startDate . RY_SEARCH_PARAM_DATES_SEPARATOR . $endDate;
 
         return $dateRangeValue;
     }
@@ -122,7 +107,7 @@ class rySearchController
         return $isDefaultDateRange;
     }
 
-    private static function getRYFilterParameterList()
+    public static function getRYFilterParameterList()
     {
         $profParameter = self::urlGetParameter(RY_SEARCH_PARAM_PROF);
         $destinationParameter = self::urlGetParameter(RY_SEARCH_PARAM_DESTINATION);
@@ -224,7 +209,7 @@ class rySearchController
             $monthName = $date->format('Y F');
             $month = explode(' ', $monthName);
             $monthFR = self::trMonthName($month[1]);
-            $months[$monthValue] = $month[0] . ' ' . $monthFR;
+            $months[$monthValue] = $monthFR . ' ' . $month[0];
         }
 
         return $months;
@@ -293,7 +278,7 @@ class rySearchController
                     $month = $slug . '-01';
                     $startDate = date("Y-m-01", strtotime($month));
                     $endDate = date("Y-m-t", strtotime($month));
-                    $dateSlug = '&' . RY_SEARCH_PARAM_DATES . '=' . $startDate . ' to ' . $endDate;
+                    $dateSlug = '&' . RY_SEARCH_PARAM_DATES . '=' . $startDate . RY_SEARCH_PARAM_DATES_SEPARATOR . $endDate;
                     $isSelected = isset($_GET[$inputName]) && $_GET[$inputName] === $slug;
 
                     $str = RY_SEARCH_PARAM_DATES . '=';

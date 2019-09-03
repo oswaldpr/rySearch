@@ -13,6 +13,7 @@
 
 
 use rySearch\core\rySearchController;
+use rySearch\core\rySearchQueryBuilder;
 
 define('RY_SEARCH_ROOT', dirname(__FILE__));
 
@@ -25,6 +26,7 @@ define('RY_SEARCH_ACTION_URL', home_url() . RY_SEARCH_SLUG);
 define('RY_SEARCH_DEFAULT_SEARCH', home_url() . '/toutes-les-retraites');
 define('RY_SEARCH_PARAM_KEY', 'rys');
 define('RY_SEARCH_PARAM_DATES', 'dates');
+define('RY_SEARCH_PARAM_DATES_SEPARATOR', ' --> ');
 define('RY_SEARCH_PARAM_MONTH', 'mois');
 define('RY_SEARCH_PARAM_DESTINATION', 'destination');
 define('RY_SEARCH_PARAM_TYPE', 'type');
@@ -52,8 +54,8 @@ class rySearchPlugin
     {
         spl_autoload_register(function ($class) {
             // Should be ABSPATH  instead of RY_SEARCH_ABSPATH but the server config dont match the folders
-            $filename = ABSPATH . 'wp-content/plugins/'. str_replace('\\', DIRECTORY_SEPARATOR , $class) . '.php';
-            $widgetFile = ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidget.php';
+            $filename = RY_SEARCH_ABSPATH . 'wp-content/plugins/'. str_replace('\\', DIRECTORY_SEPARATOR , $class) . '.php';
+            $widgetFile = RY_SEARCH_ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidget.php';
             if(strpos($filename, 'widgetRySearch') !== false && file_exists($widgetFile)){
                 include_once $widgetFile;
             } elseif (file_exists($filename)){
@@ -98,14 +100,13 @@ function rySearchRedirect()
             die;
         }
 
-        $wp_query = rySearchController::getWPQuery();
+        $wp_query = rySearchQueryBuilder::getWPQuery();
         $wp_query->is_404 = false;
         $wp_query->is_category = false;
         $wp_query->is_search = false;
         unset($wp_query->query['s']);
         unset($wp_query->query_vars['s']);
 
-        $wc = WooCommerce::instance();
         wc()->query->product_query($wp_query);
 
         session_start();

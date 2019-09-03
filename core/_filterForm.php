@@ -1,6 +1,5 @@
 <?php
 
-
 use rySearch\core\rySearchController;
 
 $keyword = rySearchController::urlGetParameter(RY_SEARCH_PARAM_KEY);

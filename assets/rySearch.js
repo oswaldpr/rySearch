@@ -20,7 +20,7 @@
                 }, function(start, end) {
                     const startDate = start.format('YYYY-MM-DD');
                     const endDate = end.format('YYYY-MM-DD');
-                    const dateRange = startDate + ' to ' + endDate;
+                    const dateRange = startDate + ' --> ' + endDate;
                     $('#RY_Filter_Date_Values').val(dateRange);
                     updateDatesAction(dateRange);
                     // updateULSelect($('#DestinationHtml'), dateRange);
