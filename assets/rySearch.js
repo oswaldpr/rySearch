@@ -42,6 +42,10 @@
             }
         });
 
+        $body.on("keydown", "#RY_Filter_Date_Values", function (e) {
+            e.preventDefault();
+        });
+
         $body.on("click", ".ry_li_select_value", function (e) {
             $('.waiting-result-Display').show();
         });

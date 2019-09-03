@@ -222,7 +222,7 @@ a.clearSearch {
 
 .clearSearch, .clearSearch:hover {
     position: relative;
-    top: -42px;
+    top: 14px;
     font-size: 20px;
 }
 
