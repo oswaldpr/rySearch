@@ -5,26 +5,28 @@ use rySearch\core\rySearchController;
 
 $keyword = rySearchController::urlGetParameter(RY_SEARCH_PARAM_KEY);
 $actionFormUrl = rySearchController::getActionFormUrl();
+$isDefaultDateRange = rySearchController::getIsDefaultDateRange();
 $dateRangeValue = rySearchController::getDateRangeDefaultValue();
 ?>
 
 <form id="RYSBDForm" name="RYSBDForm" accept-charset="utf-8" action="<?php echo $actionFormUrl; ?>">
     <div id="RYFilterForm">
         <div id="RY_Filter_Inputs">
-            <div  class="RY_Filter_Row RY_Filter_Row_Left">
+            <div class="RY_Filter_Row RY_Filter_Row_Left <?php echo $keyword ? 'no-margin-bottom' : ''; ?>">
                 <input type="text" id="RY_Filter_Text" name="<?php echo RY_SEARCH_PARAM_KEY; ?>" value="<?php echo $keyword; ?>"
                        placeholder='Essayez "Bali" ou "Vinyasa"'
                 >
-                <div id="RYSBD_clearSearch">
+                <?php if($keyword){ ?>
                     <a class="clearSearch" href="<?php echo rySearchController::getDefaultSearchUrl(RY_SEARCH_PARAM_KEY); ?>">x</a>
-                </div>
+                <?php } ?>
             </div>
-            <div  class="RY_Filter_Row RY_Filter_Row_Right">
+            <div class="RY_Filter_Row RY_Filter_Row_Right <?php echo !$isDefaultDateRange ? 'no-margin-bottom' : ''; ?>">
                 <input type="text" id="RY_Filter_Date" value="<?php echo $dateRangeValue; ?>" />
-                <div id="RYSBD_clearSearch">
+                <input type="text" id="RY_Filter_Date_Values" class="" name="<?php echo RY_SEARCH_PARAM_DATES; ?>"
+                       value="<?php echo $isDefaultDateRange ? '' : $dateRangeValue; ?>" placeholder='Date de début --> Date de fin'>
+                <?php if(!$isDefaultDateRange){ ?>
                     <a class="clearSearch" href="<?php echo rySearchController::getDefaultSearchUrl(RY_SEARCH_PARAM_DATES); ?>">x</a>
-                </div>
-                <input type="hidden" id="RY_Filter_Date_Values" class="" name="<?php echo RY_SEARCH_PARAM_DATES; ?>">
+                <?php } ?>
             </div>
 
             <div class="clear"></div>

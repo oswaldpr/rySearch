@@ -192,30 +192,31 @@
     height: 23px;
 }
 
-#RYSBD_clearSearch {
-    line-height: 16px;
+.clearSearch {
     float: right;
     padding: 0 3%;
     font-size: 10px;
+    background-color: #00a2e0;
+    border: 1px solid #00a2e0;
+    height: 30px;
+    border-radius: 25px;
+    color: #fff;
+    cursor: pointer;
 }
 
-#RYSBD_clearSearch:hover {
-     background-color: #00a2e0;
-     border: 1px solid #00a2e0;
-     border-radius: 5px;
-     color: #fff;
-     cursor: pointer;
+a.clearSearch {
+     color: #fff !important;
 }
 
-#RYSBD_clearSearch:hover a {
-     color: #fff;
+.no-margin-bottom{
+    margin-bottom: 0 !important;
 }
 
 .clear{
     clear: both;
 }
 
-#RY_Filter_Date, #RY_Filter_Text {
+#RY_Filter_Date, #RY_Filter_Text, #RY_Filter_Date_Values {
     color: #000;
 }
 
@@ -223,9 +224,10 @@
     border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-#RYSBD_clearSearch, #RYSBD_clearSearch:hover {
+.clearSearch, .clearSearch:hover {
     position: relative;
     top: -42px;
+    font-size: 20px;
 }
 
 .waiting-result-Display {
@@ -246,6 +248,25 @@
     left: 48%;
 }
 
+#RY_Filter_Inputs .RY_Filter_Row {
+    position:relative;
+}
+
+.RY_Filter_Row {
+    margin-bottom: 4%;
+}
+
+#RY_Filter_Date_Values {
+    position:absolute;
+    top: 0;
+    left: 0;
+}
+
+#RY_Filter_Btn .btn{
+    background-color: #00a2e0 !important;
+    border: 1px solid #00a2e0 !important;
+}
+
 @media screen and (min-width: 770px) {
     #RYSBD_Date_Box{
         right: 22%;
@@ -263,14 +284,15 @@
     #RY_Filter_Btn .btn{
         font-size: 1.1em;
     }
+
+    .RY_Filter_Row {
+        width: 48% !important;
+        margin-bottom: 4%;
+    }
     .widget_rysearchbyprof, .widget_rysearchbydestination {
         float: left;
         width: 25% !important;
         margin: 2% 1% !important;
-    }
-    .RY_Filter_Row {
-        width: 48% !important;
-        margin-bottom: 4% !important;
     }
     .RY_Filter_Row_Left {
         float: left;

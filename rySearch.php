@@ -29,10 +29,7 @@ define('RY_SEARCH_PARAM_MONTH', 'mois');
 define('RY_SEARCH_PARAM_DESTINATION', 'destination');
 define('RY_SEARCH_PARAM_TYPE', 'type');
 define('RY_SEARCH_PARAM_PROF', 'professeur');
-define('RY_SEARCH_PARAM_MIN_PRICE', 'min_price');
-define('RY_SEARCH_PARAM_MAX_PRICE', 'max_price');
 define('RY_SEARCH_ABSPATH', '/www/');
-//define('RY_SEARCH_TXT_DOMAIN', 'ry-search-text-domain');
 
 class rySearchPlugin
 {
@@ -56,19 +53,13 @@ class rySearchPlugin
         spl_autoload_register(function ($class) {
             // Should be ABSPATH  instead of RY_SEARCH_ABSPATH but the server config dont match the folders
             $filename = ABSPATH . 'wp-content/plugins/'. str_replace('\\', DIRECTORY_SEPARATOR , $class) . '.php';
-            $widgetFile = ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidgetList.php';
+            $widgetFile = ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidget.php';
             if(strpos($filename, 'widgetRySearch') !== false && file_exists($widgetFile)){
                 include_once $widgetFile;
             } elseif (file_exists($filename)){
                 include_once $filename;
             }
         });
-
-//        /* Load the language file */
-//        $file = RY_SEARCH_DIR . '/languages/' . get_locale() . '.mo';
-//        if (file_exists($file)) {
-//            load_textdomain(RY_SEARCH_TXT_DOMAIN, $file);
-//        }
     }
 }
 
@@ -80,9 +71,7 @@ function createRYSearchPlugin() {
 }
 
 function loadRYSearch() {
-    register_widget('rySearch\core\widgetRySearchByDate');
-    register_widget('rySearch\core\widgetRySearchByDestination');
-    register_widget('rySearch\core\widgetRySearchByProf');
+    register_widget('rySearch\core\widgetRySearch');
     wc_register_widgets();
 }
 
@@ -155,6 +144,6 @@ function loadRYSBDLibrariesScripts() {
     wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js', array(), null, true);
     wp_enqueue_script('bootstrap_datepicker_js', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js', array(), null, true);
 
-    wp_enqueue_script('rysearch_js',RY_SEARCH_DIR . '/assets/general.js', array('jquery'), null, true );
+    wp_enqueue_script('rysearch_js',RY_SEARCH_DIR . '/assets/rySearch.js', array('jquery'), null, true );
 }
 

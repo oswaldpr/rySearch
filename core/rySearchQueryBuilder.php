@@ -17,9 +17,7 @@ class rySearchQueryBuilder
     public static function buildQuery($keyword, $startDate, $endDate, $parameterList = array())
     {
         global $paged;
-
-        $paged = ( get_query_var('page') ) ? get_query_var('page') : 1;
-
+        
         $keyCleared = self::clearKeyword($keyword);
         $keySearchArr = $keyCleared ? array('s' => $keyCleared) : array();
 
@@ -28,7 +26,7 @@ class rySearchQueryBuilder
 
         $args = array(
             'paged' => $paged,
-            'posts_per_page' => 10,
+            'posts_per_page' => 9,
             'post_type'  => 'product',
             'post_status' => 'publish',
             'meta_key' => 'sejour_date_from',
@@ -153,7 +151,7 @@ class rySearchQueryBuilder
         $termListQuery = "SELECT * FROM `wp_terms` WHERE term_id IN ($term_query) AND term_id IN ($termIDListQuery)";
 
         $termListQuery = str_replace(' SQL_CALC_FOUND_ROWS', '', $termListQuery);
-        $termListQuery = str_replace(' ASC LIMIT 0, 10', '', $termListQuery);
+        $termListQuery = str_replace(' ASC LIMIT 0, 9', '', $termListQuery);
 
         return $termListQuery;
     }

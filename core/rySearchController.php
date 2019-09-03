@@ -45,6 +45,13 @@ class rySearchController
                 $char = $isFirst ? '?' : '&';
                 $uri .= $char . $param;
                 $isFirst = false;
+            } else {
+                $paramArray = explode('=', $param);
+                $defaultValue = $paramArray[0] === RY_SEARCH_PARAM_KEY ? '' : '=all';
+                $newParam = $paramArray[0] . $defaultValue;
+                $char = $isFirst ? '?' : '&';
+                $uri .= $char . $newParam;
+                $isFirst = false;
             }
         }
 
@@ -96,10 +103,23 @@ class rySearchController
         $dateRangeParameter = rySearchController::getDateRangeParameter();
         $startDate = isset($dateRangeParameter->startDate) ? date("d/m/Y", strtotime($dateRangeParameter->startDate)) : '';
         $endDate = isset($dateRangeParameter->endDate) ? date("d/m/Y", strtotime($dateRangeParameter->endDate)) : '';
-        $dateRangeValue = 'Date de début --> Date de fin';
+        //$dateRangeValue = 'Date de début --> Date de fin';
         $dateRangeValue = $startDate . ' --> ' . $endDate;
 
         return $dateRangeValue;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function getIsDefaultDateRange()
+    {
+        $dateRangeParameter = rySearchController::getDateRangeParameter();
+        $today = date('Y-m-d'); // from today
+        $today100 = date('Y-m-d', strtotime("+100 year", strtotime($today)));
+        $isDefaultDateRange = $dateRangeParameter->startDate === $today && $dateRangeParameter->endDate === $today100;
+
+        return $isDefaultDateRange;
     }
 
     private static function getRYFilterParameterList()
@@ -198,7 +218,7 @@ class rySearchController
     private static function getNextTwelveMonthsArr()
     {
         $months = array();
-        for ($i = 1; $i <= 12; $i++) {
+        for ($i = 0; $i <= 11; $i++) {
             $monthValue = date("Y-m", strtotime( date( 'Y-m' )." +$i months"));
             $date = new DateTime($monthValue . '-01');
             $monthName = $date->format('Y F');
