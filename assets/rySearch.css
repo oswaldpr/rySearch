@@ -86,9 +86,6 @@
     overflow: hidden;
 }
 
-#RYSBD_DatePicker {
-}
-
 #RYSBD_DureeEtDate{
     padding-left: 5px;
 }
@@ -222,8 +219,15 @@ a.clearSearch {
 
 .clearSearch, .clearSearch:hover {
     position: relative;
-    top: 14px;
+    top: -42px;
     font-size: 20px;
+}
+
+body .daterangepicker td.in-range {
+    background-color: rgba(0, 162, 224, 0.3);
+}
+body .daterangepicker td.active {
+    background-color: rgba(0, 162, 224, 1);
 }
 
 .waiting-result-Display {
@@ -244,7 +248,7 @@ a.clearSearch {
     left: 48%;
 }
 
-#RY_Filter_Inputs .RY_Filter_Row {
+#RY_Filter_Inputs .RY_Filter_Row, #RY_Filter_Inputs .RY_Filter_Row {
     position:relative;
     min-height: 58px;
 }
@@ -254,11 +258,12 @@ a.clearSearch {
 }
 
 #RY_Filter_Date {
+    position:relative;
     color: #fff !important;
     border: 0px solid rgba(255,255,255, 1) !important;
 }
 
-#RY_Filter_Date_Values, #RY_Filter_Date {
+#RY_Filter_Date_Values {
     position:absolute;
     top: 0;
     left: 0;

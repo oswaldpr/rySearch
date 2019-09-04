@@ -128,7 +128,7 @@ function loadRYSBDLibrariesStylesheets() {
     wp_enqueue_style( "jsdelivr_daterangepicker_css", 'https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css',false, null);
     wp_enqueue_style( "bootstrap_css", 'https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css',false, null);
     wp_enqueue_style( "bootstrap_datepicker_css", 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css',false, null);
-    wp_enqueue_style( "rysearch_css", RY_SEARCH_DIR . '/assets/style.css',false, null);
+    wp_enqueue_style( "rysearch_css", RY_SEARCH_DIR . '/assets/rySearch.css',false, null);
 }
 
 add_action( 'wp_enqueue_scripts', 'loadRYSBDLibrariesScripts' );

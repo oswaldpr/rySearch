@@ -21,7 +21,7 @@ $dateRangeValue = rySearchController::getDateRangeDefaultValue();
             </div>
             <div class="RY_Filter_Row RY_Filter_Row_Right <?php echo !$isDefaultDateRange ? 'no-margin-bottom' : ''; ?>">
                 <input type="text" id="RY_Filter_Date" value="<?php echo $dateRangeValue; ?>" />
-                <input type="text" id="RY_Filter_Date_Values" class="" name="<?php echo RY_SEARCH_PARAM_DATES; ?>" autocomplete="false"
+                <input type="text" id="RY_Filter_Date_Values" class="" name="<?php echo RY_SEARCH_PARAM_DATES; ?>" autocomplete="off"
                        value="<?php echo $isDefaultDateRange ? '' : $dateRangeValue; ?>" placeholder='Date de début --> Date de fin'>
                 <?php if(!$isDefaultDateRange){ ?>
                     <a class="clearSearch" href="<?php echo rySearchController::getDefaultSearchUrl(RY_SEARCH_PARAM_DATES); ?>">x</a>

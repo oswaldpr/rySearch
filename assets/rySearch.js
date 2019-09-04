@@ -140,6 +140,7 @@
         let urlBase = mainUrlArray[0];
 
         if(mainUrlArray[1]){
+            let char = '';
             let urlArray = getSplitUrl(mainUrlArray[1], '&');
             const doNotContainDate = urlBase.indexOf('dates=') === -1;
             const doNotContainMonth = urlBase.indexOf('mois=') === -1;
@@ -162,6 +163,17 @@
                     }
                 }
             });
+
+            if(urlBase.indexOf('?') === -1){
+                char = '?';
+            } else {
+                char = '&';
+            }
+
+            if(urlBase.indexOf('dates=') === -1){
+                urlBase = urlBase + char + 'dates=' + dateRange;
+            }
+
         } else {
             urlBase = urlBase + '?dates=' + dateRange;
         }
