@@ -159,7 +159,7 @@ class rySearchQueryBuilder
         $term_query = "SELECT DISTINCT term_taxonomy_id FROM `wp_term_relationships` WHERE object_id IN ($post_query)";
         $termIDListQuery = "SELECT DISTINCT term_id FROM `wp_term_taxonomy` WHERE taxonomy LIKE '$taxonomy'";
 
-        $termListQuery = "SELECT * FROM `wp_terms` WHERE term_id IN ($term_query) AND term_id IN ($termIDListQuery)";
+        $termListQuery = "SELECT * FROM `wp_terms` WHERE term_id IN ($term_query) AND term_id IN ($termIDListQuery) ORDER BY name";
 
         $termListQuery = str_replace(' SQL_CALC_FOUND_ROWS', '', $termListQuery);
         $termListQuery = str_replace(' ASC LIMIT 0, 9', '', $termListQuery);

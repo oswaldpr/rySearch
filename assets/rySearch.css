@@ -457,6 +457,7 @@ body .daterangepicker td.active {
 }
 
 .et_pb_widget .ry_ul_select li a{
+    text-align: left;
     margin: 0px;
     display: block;
     width: 100%;
