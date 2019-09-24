@@ -37,7 +37,7 @@ class rySearchQueryBuilder
         $taxQuery = self::buildTaxonomyQuery($parameterList, $keyCleared);
 
         $args = array(
-            'posts_per_page' => 9,
+            //'posts_per_page' => 9,
             'post_type'  => 'product',
             'post_status' => 'publish',
             'meta_key' => 'sejour_date_from',
@@ -50,7 +50,7 @@ class rySearchQueryBuilder
         if ($keyCleared){
             $keySearchArr = array(
                 's' => $keyCleared,
-                'posts_per_page' => 9,
+                //'posts_per_page' => 9,
                 'post_type'  => 'product',
                 'post_status' => 'publish',
                 'meta_key' => 'sejour_date_from',
