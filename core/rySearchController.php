@@ -127,13 +127,14 @@ class rySearchController
     public static function getRefererParameters()
     {
         $refererParameters = array();
-        $referer = $_SERVER['HTTP_REFERER'];
-
-        $parameterStr = explode('?', $referer)[1];
-        $parameterList = explode('&', $parameterStr);
-        foreach ($parameterList as $param) {
-            $singleParam = explode('=', $param);
-            $refererParameters[$singleParam[0]] = $singleParam[1];
+        $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+        if($referer){
+            $parameterStr = explode('?', $referer)[1];
+            $parameterList = explode('&', $parameterStr);
+            foreach ($parameterList as $param) {
+                $singleParam = explode('=', $param);
+                $refererParameters[$singleParam[0]] = $singleParam[1];
+            }
         }
 
         return $refererParameters;
@@ -156,7 +157,8 @@ class rySearchController
             $parameterValue = $_GET['page'] === null ?
                 1 : (int)filter_var($_GET['page'], FILTER_SANITIZE_NUMBER_FLOAT);
         } else {
-            $parameterValue = filter_var($_GET[$parameter], FILTER_SANITIZE_STRING);
+            $parameter = isset($_GET[$parameter]) ? $_GET[$parameter] : null;
+            $parameterValue = $parameter ? filter_var($parameter, FILTER_SANITIZE_STRING) : '';
         }
 
         $parameterValue = $parameterValue === 'all' ? '' : $parameterValue;

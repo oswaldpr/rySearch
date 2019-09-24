@@ -13,7 +13,7 @@ $dateRangeValue = rySearchController::getDateRangeDefaultValue();
         <div id="RY_Filter_Inputs">
             <div class="RY_Filter_Row RY_Filter_Row_Left <?php echo $keyword ? 'no-margin-bottom' : ''; ?>">
                 <input type="text" id="RY_Filter_Text" name="<?php echo RY_SEARCH_PARAM_KEY; ?>" value="<?php echo $keyword; ?>"
-                       placeholder='Essayez "Bali" ou "Vinyasa"'
+                       placeholder='Essayez "Estrie" ou "Vinyasa"'
                 >
                 <?php if($keyword){ ?>
                     <a class="clearSearch" href="<?php echo rySearchController::getDefaultSearchUrl(RY_SEARCH_PARAM_KEY); ?>">x</a>

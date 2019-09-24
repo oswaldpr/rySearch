@@ -30,16 +30,13 @@ class rySearchQueryBuilder
      */
     private static function buildQuery($keyword, $startDate, $endDate, $parameterList = array())
     {
+        // https://developer.wordpress.org/reference/classes/wp_query/
         global $paged;
-        
         $keyCleared = self::clearKeyword($keyword);
-        $keySearchArr = $keyCleared ? array('s' => $keyCleared) : array();
-
         $metaQuery = self::buildDateQuery($startDate, $endDate);
-        $taxQuery = self::buildTaxonomyQuery($parameterList);
+        $taxQuery = self::buildTaxonomyQuery($parameterList, $keyCleared);
 
         $args = array(
-            'paged' => $paged,
             'posts_per_page' => 9,
             'post_type'  => 'product',
             'post_status' => 'publish',
@@ -50,11 +47,63 @@ class rySearchQueryBuilder
             'tax_query' => $taxQuery,
         );
 
-        $queryArgs = array_merge($keySearchArr, $args);
+        if ($keyCleared){
+            $keySearchArr = array(
+                's' => $keyCleared,
+                'posts_per_page' => 9,
+                'post_type'  => 'product',
+                'post_status' => 'publish',
+                'meta_key' => 'sejour_date_from',
+                'orderby' => 'meta_value',
+                'order'   => 'ASC',
+                );
 
-        $query = new WP_Query( $queryArgs );
+            $wpQueryKey = new WP_Query( $keySearchArr );
+            $queryKey = $wpQueryKey->request;
+        }
 
-        return $query;
+        $wpQueryArgs = new WP_Query( $args );
+        $queryArgs = $wpQueryArgs->request;
+        $realQuery = "SELECT * FROM ($queryArgs) AS QARG";
+        if(isset($queryKey)){
+            $realQuery .= " UNION ($queryKey)";
+        }
+
+        $realQuery = str_replace(' SQL_CALC_FOUND_ROWS', '', $realQuery);
+        $realQuery = str_replace(' ORDER BY wp_postmeta.meta_value ASC LIMIT 0, 9', '', $realQuery);
+
+        // https://regexr.com/397dr
+        $query = preg_replace('/\{(.*?)\}/', "%", $realQuery);
+        $realWpQuery = self::executeQuery($query);
+        $postIdList = array();
+        foreach ($realWpQuery as $post) {
+            $postIdList[] = $post->ID;
+        }
+
+        $realQuerySearch = array(
+            'paged' => $paged,
+            'post__in' => $postIdList,
+            'posts_per_page' => 9,
+            'post_type'  => 'product',
+            'post_status' => 'publish',
+            'meta_key' => 'sejour_date_from',
+            'orderby' => 'meta_value',
+            'order'   => 'ASC',
+        );
+        $wpQuerySearch = new WP_Query( $realQuerySearch );
+
+        return $wpQuerySearch;
+    }
+
+    private static function parseKeyword($keyword)
+    {
+        $keyExploded = explode(' ', $keyword);
+        $keyParsedArray = [];
+        foreach ($keyExploded as $index => $key) {
+            $keyParsedArray[] = "%" . $key . "%" ;
+        }
+
+        return $keyParsedArray;
     }
 
     /**
@@ -99,36 +148,75 @@ class rySearchQueryBuilder
 
     /**
      * @param array $parameterList
+     * @param string $keyCleared
      * @return array
      */
-    private static function buildTaxonomyQuery($parameterList = array())
+    private static function buildTaxonomyQuery($parameterList = array(), $keyCleared = '')
     {
-        $taxKeyArr = count($parameterList) > 1 ? array('relation' => 'AND') : array();
+        $taxKeyArr = array();
 
-        foreach ($parameterList as $key => $value){
-            if($key === RY_SEARCH_PARAM_PROF){
-                $taxKeyArr[] = self::buildSingleTaxonomyQuery($value, 'pa_professeur_organisateur');
+        if(!empty($parameterList)){
+            $taxKeyArr = array('relation' => 'AND');
+            foreach ($parameterList as $key => $value){
+                if($key === RY_SEARCH_PARAM_PROF){
+                    $taxKeyArr[] = self::buildSearchTaxonomyQuery('pa_professeur_organisateur', $value, $keyCleared);
+                }
+                if($key === RY_SEARCH_PARAM_DESTINATION){
+                    $taxKeyArr[] = self::buildSearchTaxonomyQuery('pa_region', $value, $keyCleared);
+                }
+                if($key === RY_SEARCH_PARAM_TYPE){
+                    $taxKeyArr[] = self::buildSearchTaxonomyQuery('pa_type-de-yoga', $value, $keyCleared);
+                }
             }
-            if($key === RY_SEARCH_PARAM_DESTINATION){
-                $taxKeyArr[] = self::buildSingleTaxonomyQuery($value, 'pa_region');
-            }
-            if($key === RY_SEARCH_PARAM_TYPE){
-                $taxKeyArr[] = self::buildSingleTaxonomyQuery($value, 'pa_type-de-yoga');
-            }
+        } elseif($keyCleared) {
+            $taxKeyArr = array('relation' => 'OR');
+            $taxKeyArr[] = self::buildSearchTaxonomyQuery('pa_professeur_organisateur', '', $keyCleared);
+            $taxKeyArr[] = self::buildSearchTaxonomyQuery('pa_region', '', $keyCleared);
+            $taxKeyArr[] = self::buildSearchTaxonomyQuery('pa_type-de-yoga', '', $keyCleared);
         }
 
         return $taxKeyArr;
     }
 
-    private static function buildSingleTaxonomyQuery($value, $taxonomyName)
+    private static function buildSearchTaxonomyQuery($taxonomyName, $value = '', $keyCleared = '')
     {
+        $taxKeyArr = array();
+        if($value){
+            $singleHasTaxArr = self::buildSingleTaxonomyQuery($taxonomyName, $value);
+        }
+
+        if($keyCleared){
+            $nameAsTaxArr = self::buildSingleTaxonomyQuery($taxonomyName, $keyCleared);
+            if($nameAsTaxArr){
+                session_start();
+                $_SESSION['rySearchKeyIsAttribute'] = true;
+            }
+        }
+
+        if(isset($singleHasTaxArr) && isset($nameAsTaxArr)){
+            $base = array('relation' => 'OR');
+            $taxKeyArr = array_merge($base, $nameAsTaxArr, $singleHasTaxArr);
+        } elseif(isset($nameAsTaxArr)){
+            $taxKeyArr = $nameAsTaxArr;
+        } elseif(isset($singleHasTaxArr)){
+            $taxKeyArr = $singleHasTaxArr;
+        }
+
+        return $taxKeyArr;
+    }
+
+    private static function buildSingleTaxonomyQuery($taxonomyName, $value)
+    {
+        $singleTaxKeyArr = null;
         $termList = get_terms($args = array('taxonomy' => $taxonomyName, 'slug' => $value));
-        $term = current($termList);
-        $singleTaxKeyArr = array(
-            'taxonomy' => $taxonomyName,
-            'field'    => 'term_id',
-            'terms'    => $term->term_id,
-        );
+        if($termList){
+            $term = current($termList);
+            $singleTaxKeyArr = array(
+                'taxonomy' => $taxonomyName,
+                'field'    => 'term_id',
+                'terms'    => $term->term_id,
+            );
+        }
 
         return $singleTaxKeyArr;
     }
