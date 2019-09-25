@@ -224,10 +224,10 @@ class rySearchQueryBuilder
         return $singleTaxKeyArr;
     }
 
-    public static function getCurrentTaxonomyList($taxonomy = null)
+    public static function getCurrentTaxonomyList($taxonomy = null, $isCurrentSingleTaxonomy = false)
     {
         $query = isset($_SESSION['wp_query']) ? $_SESSION['wp_query'] : null;
-        $queryToSearch = is_null($query) ? self::getActivePostIDListQuery() : $query->request;
+        $queryToSearch = is_null($query) || $isCurrentSingleTaxonomy ? self::getActivePostIDListQuery() : $query->request;
         $termListQuery = self::getTermListQuery($queryToSearch, $taxonomy);
         $termList = self::executeQuery($termListQuery);
 

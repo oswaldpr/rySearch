@@ -168,10 +168,34 @@ class rySearchController
 
         return $parameterValue;
     }
+
+    public static function isSingleUrlParameter($parameter)
+    {
+        $profValue = self::urlGetParameter(RY_SEARCH_PARAM_PROF);
+        $destinationValue = self::urlGetParameter(RY_SEARCH_PARAM_DESTINATION);
+        $typeValue = self::urlGetParameter(RY_SEARCH_PARAM_TYPE);
+        $isSingle = false;
+
+        switch ( $parameter ) {
+            case RY_SEARCH_PARAM_PROF:
+                $isSingle = $profValue && !$destinationValue && !$typeValue;
+                break;
+            case RY_SEARCH_PARAM_DESTINATION:
+                $isSingle = !$profValue && $destinationValue && !$typeValue;
+                break;
+            case RY_SEARCH_PARAM_TYPE:
+                $isSingle = !$profValue && !$destinationValue && $typeValue;
+                break;
+        }
+
+        return $isSingle;
+    }
+
     // SEARCH BY DESTINATION
     public static function buildDestinationHtml()
     {
-        $destinationList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_region');
+        $isCurrentSingleTaxonomy = self::isSingleUrlParameter(RY_SEARCH_PARAM_DESTINATION);
+        $destinationList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_region', $isCurrentSingleTaxonomy);
         $destinationULSelect = self::buildULFilter($destinationList, RY_SEARCH_PARAM_DESTINATION, 'Destination');
 
         return $destinationULSelect;
@@ -180,7 +204,8 @@ class rySearchController
     // SEARCH BY PROFESSEUR
     public static function buildProfHtml()
     {
-        $profList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_professeur_organisateur');
+        $isCurrentSingleTaxonomy = self::isSingleUrlParameter(RY_SEARCH_PARAM_PROF);
+        $profList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_professeur_organisateur', $isCurrentSingleTaxonomy);
         $profULSelect = self::buildULFilter($profList, RY_SEARCH_PARAM_PROF, 'Professeur');
 
         return $profULSelect;
@@ -189,7 +214,8 @@ class rySearchController
     // SEARCH BY TYPE
     public static function buildTypeHtml()
     {
-        $typeList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_type-de-yoga');
+        $isCurrentSingleTaxonomy = self::isSingleUrlParameter(RY_SEARCH_PARAM_TYPE);
+        $typeList = rySearchQueryBuilder::getCurrentTaxonomyList('pa_type-de-yoga', $isCurrentSingleTaxonomy);
         $typeULSelect = self::buildULFilter($typeList, RY_SEARCH_PARAM_TYPE, 'Type');
 
         return $typeULSelect;
