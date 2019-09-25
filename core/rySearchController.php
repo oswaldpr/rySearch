@@ -26,7 +26,7 @@ class rySearchController
         $uri = $_SERVER['REQUEST_URI'];
         $uriArr = explode('?', $uri);
         $paramArr = explode('&', $uriArr[1]);
-        $basePart = explode('/page/', $uri);
+        $basePart = explode('/page/', $uriArr[0]);
         $base = $basePart[0];
         $page = $basePart[1];
         $uriParts = new \stdClass();

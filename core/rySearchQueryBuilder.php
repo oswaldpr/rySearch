@@ -37,26 +37,25 @@ class rySearchQueryBuilder
         $taxQuery = self::buildTaxonomyQuery($parameterList, $keyCleared);
 
         $args = array(
-            //'posts_per_page' => 9,
+            'posts_per_page' => -1,
             'post_type'  => 'product',
             'post_status' => 'publish',
             'meta_key' => 'sejour_date_from',
             'orderby' => 'meta_value',
             'order'   => 'ASC',
-            'meta_query' => $metaQuery,
             'tax_query' => $taxQuery,
         );
 
         if ($keyCleared){
             $keySearchArr = array(
                 's' => $keyCleared,
-                //'posts_per_page' => 9,
+                'posts_per_page' => -1,
                 'post_type'  => 'product',
                 'post_status' => 'publish',
                 'meta_key' => 'sejour_date_from',
                 'orderby' => 'meta_value',
                 'order'   => 'ASC',
-                );
+            );
 
             $wpQueryKey = new WP_Query( $keySearchArr );
             $queryKey = $wpQueryKey->request;
@@ -69,7 +68,10 @@ class rySearchQueryBuilder
             $realQuery .= " UNION ($queryKey)";
         }
 
-        $realQuery = str_replace(' SQL_CALC_FOUND_ROWS', '', $realQuery);
+        $realQuery = str_replace(' SQL_CALC_FOUND_ROWS', ' DISTINCT', $realQuery);
+        $realQuery = str_replace('  ', ' ', $realQuery);
+        $realQuery = str_replace('SELECT wp_posts.ID', 'SELECT wp_posts.ID, wp_postmeta.meta_value', $realQuery);
+        $realQuery = str_replace(' LIMIT 0, 10', '', $realQuery);
         $realQuery = str_replace(' ORDER BY wp_postmeta.meta_value ASC LIMIT 0, 9', '', $realQuery);
 
         // https://regexr.com/397dr
@@ -87,6 +89,7 @@ class rySearchQueryBuilder
             'post_type'  => 'product',
             'post_status' => 'publish',
             'meta_key' => 'sejour_date_from',
+            'meta_query' => $metaQuery,
             'orderby' => 'meta_value',
             'order'   => 'ASC',
         );
