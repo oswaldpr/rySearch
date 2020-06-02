@@ -31,6 +31,7 @@ define('RY_SEARCH_PARAM_MONTH', 'mois');
 define('RY_SEARCH_PARAM_DESTINATION', 'destination');
 define('RY_SEARCH_PARAM_TYPE', 'type');
 define('RY_SEARCH_PARAM_PROF', 'professeur');
+define('RY_SEARCH_LIMIT_BY_PAGE', 9);
 define('RY_SEARCH_ABSPATH', '/www/');
 
 class rySearchPlugin
@@ -54,8 +55,8 @@ class rySearchPlugin
     {
         spl_autoload_register(function ($class) {
             // Should be ABSPATH  instead of RY_SEARCH_ABSPATH but the server config dont match the folders
-            $filename = RY_SEARCH_ABSPATH . 'wp-content/plugins/'. str_replace('\\', DIRECTORY_SEPARATOR , $class) . '.php';
-            $widgetFile = RY_SEARCH_ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidget.php';
+            $filename = ABSPATH . 'wp-content/plugins/'. str_replace('\\', DIRECTORY_SEPARATOR , $class) . '.php';
+            $widgetFile = ABSPATH . 'wp-content/plugins/rySearch/core/rySearchWidget.php';
             if(strpos($filename, 'widgetRySearch') !== false && file_exists($widgetFile)){
                 include_once $widgetFile;
             } elseif (file_exists($filename)){
@@ -82,9 +83,13 @@ function rySearchRedirect()
     global $wp_query;
 
     $uri = $_SERVER['REQUEST_URI'];
+    $isRysearch = strpos($uri, RY_SEARCH_SLUG) !== false;
+    $path = explode('/', $uri);
+    $isToutes = strpos($path[1], 'toutes-les-retraites') !== false;
+    $isToutesMainPage = $isToutes && strlen($path[2]) === 0;
+    $isToutesPageNumber = $isToutes && $path[2] === 'page';
 
-    if (strpos($uri, RY_SEARCH_SLUG) !== false) {
-
+    if ($isRysearch || $isToutesMainPage || $isToutesPageNumber) {
         $uriContainsAllParameters = true;
         $refererParameters = rySearchController::getRefererParameters();
         foreach ($refererParameters as $key => $value) {
@@ -137,9 +142,6 @@ function loadRYSBDLibrariesScripts() {
     if (!wp_script_is( 'jquery', 'enqueued' )) {
         wp_enqueue_script( 'jquery', "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" , array(), true, true );
     }
-
-    //wp_enqueue_script('jquery-ui', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array(), null, true);
-    //wp_enqueue_script('jsdelivr_jquery', 'https://cdn.jsdelivr.net/jquery/latest/jquery.min.js', array(), null, true);
     wp_enqueue_script('jsdelivr_moment', 'https://cdn.jsdelivr.net/momentjs/latest/moment.min.js', array(), null, true);
     wp_enqueue_script('jsdelivr_daterangepicker', 'https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js', array(), null, true);
     wp_enqueue_script('bootstrap_js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js', array(), null, true);

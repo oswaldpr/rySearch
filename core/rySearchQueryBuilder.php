@@ -85,7 +85,7 @@ class rySearchQueryBuilder
         $realQuerySearch = array(
             'paged' => $paged,
             'post__in' => $postIdList,
-            'posts_per_page' => 9,
+            'posts_per_page' => RY_SEARCH_LIMIT_BY_PAGE,
             'post_type'  => 'product',
             'post_status' => 'publish',
             'meta_key' => 'sejour_date_from',
@@ -228,7 +228,7 @@ class rySearchQueryBuilder
     {
         $query = isset($_SESSION['wp_query']) ? $_SESSION['wp_query'] : null;
         $queryToSearch = is_null($query) || $isCurrentSingleTaxonomy ? self::getActivePostIDListQuery() : $query->request;
-        $termListQuery = self::getTermListQuery($queryToSearch, $taxonomy);
+        $termListQuery = self::getTermListQuery($queryToSearch, $taxonomy, $query->query['paged']);
         $termList = self::executeQuery($termListQuery);
 
         return $termList;
@@ -244,8 +244,12 @@ class rySearchQueryBuilder
         return $post_query;
     }
 
-    private static function getTermListQuery($post_query, $taxonomy = null)
+    private static function getTermListQuery($post_query, $taxonomy = null, $page = 1)
     {
+        $firstNumberInNewPage_ = ($page * RY_SEARCH_LIMIT_BY_PAGE) - 2;
+        $firstNumberInNewPage = ($page * RY_SEARCH_LIMIT_BY_PAGE) - 1;
+        $firstNumberInNewPage0 = ($page * RY_SEARCH_LIMIT_BY_PAGE);
+        $firstNumberInNewPage1 = ($page * RY_SEARCH_LIMIT_BY_PAGE) + 1;
         $taxonomy = is_null($taxonomy) ? '%pa%' : $taxonomy ;
         $term_query = "SELECT DISTINCT term_taxonomy_id FROM `wp_term_relationships` WHERE object_id IN ($post_query)";
         $termIDListQuery = "SELECT DISTINCT term_id FROM `wp_term_taxonomy` WHERE taxonomy LIKE '$taxonomy'";
@@ -253,7 +257,11 @@ class rySearchQueryBuilder
         $termListQuery = "SELECT * FROM `wp_terms` WHERE term_id IN ($term_query) AND term_id IN ($termIDListQuery) ORDER BY name";
 
         $termListQuery = str_replace(' SQL_CALC_FOUND_ROWS', '', $termListQuery);
-        $termListQuery = str_replace(' ASC LIMIT 0, 9', '', $termListQuery);
+        $termListQuery = str_replace(' ASC LIMIT 0, ' . RY_SEARCH_LIMIT_BY_PAGE, '', $termListQuery);
+        $termListQuery = str_replace(' ASC LIMIT '. $firstNumberInNewPage_ . ', ' . RY_SEARCH_LIMIT_BY_PAGE, '', $termListQuery);
+        $termListQuery = str_replace(' ASC LIMIT '. $firstNumberInNewPage . ', ' . RY_SEARCH_LIMIT_BY_PAGE, '', $termListQuery);
+        $termListQuery = str_replace(' ASC LIMIT '. $firstNumberInNewPage0 . ', ' . RY_SEARCH_LIMIT_BY_PAGE, '', $termListQuery);
+        $termListQuery = str_replace(' ASC LIMIT '. $firstNumberInNewPage1 . ', ' . RY_SEARCH_LIMIT_BY_PAGE, '', $termListQuery);
 
         return $termListQuery;
     }
